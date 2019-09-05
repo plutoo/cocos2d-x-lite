@@ -111,7 +111,7 @@ if [ $upstream_cnt -eq 0 ]
   git remote add upstream https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git 2> /dev/null > /dev/null
 fi
 
-git fetch upstream
+git fetch upstream --no-recurse-submodules
 
 echo "Pushing to Robot's repo ..."
 # print log
