@@ -94,10 +94,33 @@ set(CC_BASE_SOURCES
     math/Vec3.cpp
     math/Vec4.cpp
     
-
-    ui/edit-box/EditBox-win32.cpp
-    storage/local-storage/LocalStorage.cpp
 )
+
+if(WINDOWS)
+    list(APPEND CC_BASE_SOURCES
+        ui/edit-box/EditBox-win32.cpp    
+        storage/local-storage/LocalStorage.cpp
+    )
+elseif(ANDROID)
+    list(APPEND CC_BASE_SOURCES
+        ui/edit-box/EditBox-android.cpp
+        ui/videoplayer/VideoPlayer-android.cpp
+        ui/webview/WebViewImpl-android.cpp
+        storage/local-storage/LocalStorage-android.cpp
+    )
+elseif(MACOSX)
+    list(APPEND CC_BASE_SOURCES
+        ui/edit-box/EditBox-mac.mm
+        storage/local-storage/LocalStorage.cpp
+    )
+elseif(IOS)
+    list(APPEND CC_BASE_SOURCES
+        ui/edit-box/EditBox-ios.mm
+        ui/videoplayer/VideoPlayer-ios.mm
+        ui/webview/WebViewImpl-ios.mm
+        storage/local-storage/LocalStorage.cpp
+    )
+endif()
 
 
 set(COCOS_SOUCECODE_SOURCES 
@@ -124,11 +147,38 @@ target_include_directories(${COCOSLIB} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/platform
     ${CMAKE_CURRENT_SOURCE_DIR}/editor-support
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/sources
+)
+
+if(WINDOWS)
+
+target_include_directories(${COCOSLIB} PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/v8
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/zlib
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/uv
 )
+
+elseif(ANDROID)
+    target_include_directories(${COCOSLIB} PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include/v8
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include/zlib
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include/uv
+    )
+    if(ANDROID_NDK)
+        target_include_directories(${COCOSLIB} PUBLIC 
+            ${ANDROID_NDK}/sources/android/cpufeatures
+        )
+    else()
+        target_include_directories(${COCOSLIB} PUBLIC 
+            ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures
+        )
+    endif()
+elseif(MACOSX)
+
+elseif(IOS)
+
+endif()
 
 use_cocos2dx_compile_define(${COCOSLIB})
 target_compile_definitions(${COCOSLIB} PUBLIC 

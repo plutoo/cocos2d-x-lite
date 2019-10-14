@@ -202,3 +202,27 @@ set_target_properties(websockets PROPERTIES
   IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/websockets.dll
   IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/websockets.lib
 )
+
+set(CC_EXTERNAL_LIBS
+    freetype
+    glew32
+    glfw3
+    iconv
+    crypto
+    curl
+    jpeg
+    mpg123
+    ogg
+    png
+    ssl
+    tiff
+    uv
+    vorbis
+    vorbisfile
+    webp
+    zlib
+    OpenAL32
+    sqlite3
+    v8
+    websockets
+)

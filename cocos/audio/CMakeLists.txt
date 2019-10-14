@@ -1,20 +1,55 @@
 
 
-set(CC_AUDIO_SOURCES
-    audio/AudioEngine.cpp
-    audio/win32/AudioCache.h
-    audio/win32/AudioDecoder.h
-    audio/win32/AudioDecoderManager.h
-    audio/win32/AudioDecoderMp3.h
-    audio/win32/AudioDecoderOgg.h
-    audio/win32/AudioEngine-win32.h
-    audio/win32/AudioMacros.h
-    audio/win32/AudioPlayer.h
-    audio/win32/AudioCache.cpp
-    audio/win32/AudioDecoder.cpp
-    audio/win32/AudioDecoderManager.cpp
-    audio/win32/AudioDecoderMp3.cpp
-    audio/win32/AudioDecoderOgg.cpp
-    audio/win32/AudioEngine-win32.cpp
-    audio/win32/AudioPlayer.cpp
-)
+if(WINDOWS)
+    set(CC_AUDIO_SOURCES
+        audio/AudioEngine.cpp
+        audio/win32/AudioCache.h
+        audio/win32/AudioDecoder.h
+        audio/win32/AudioDecoderManager.h
+        audio/win32/AudioDecoderMp3.h
+        audio/win32/AudioDecoderOgg.h
+        audio/win32/AudioEngine-win32.h
+        audio/win32/AudioMacros.h
+        audio/win32/AudioPlayer.h
+        audio/win32/AudioCache.cpp
+        audio/win32/AudioDecoder.cpp
+        audio/win32/AudioDecoderManager.cpp
+        audio/win32/AudioDecoderMp3.cpp
+        audio/win32/AudioDecoderOgg.cpp
+        audio/win32/AudioEngine-win32.cpp
+        audio/win32/AudioPlayer.cpp
+    )
+elseif(ANDROID)
+    set(CC_AUDIO_SOURCES
+        audio/android/AudioEngine-inl.cpp
+        audio/AudioEngine.cpp
+        audio/android/AssetFd.cpp
+        audio/android/AudioDecoder.cpp
+        audio/android/AudioDecoderProvider.cpp
+        audio/android/AudioDecoderSLES.cpp
+        audio/android/AudioDecoderOgg.cpp
+        audio/android/AudioDecoderMp3.cpp
+        audio/android/AudioDecoderWav.cpp
+        audio/android/AudioPlayerProvider.cpp
+        audio/android/AudioResampler.cpp
+        audio/android/AudioResamplerCubic.cpp
+        audio/android/PcmBufferProvider.cpp
+        audio/android/PcmAudioPlayer.cpp
+        audio/android/UrlAudioPlayer.cpp
+        audio/android/PcmData.cpp
+        audio/android/AudioMixerController.cpp
+        audio/android/AudioMixer.cpp
+        audio/android/PcmAudioService.cpp
+        audio/android/Track.cpp
+        audio/android/audio_utils/format.c
+        audio/android/audio_utils/minifloat.cpp
+        audio/android/audio_utils/primitives.c
+        audio/android/utils/Utils.cpp
+        audio/android/mp3reader.cpp
+        audio/android/tinysndfile.cpp
+    )
+elseif(MACOSX)
+
+elseif(IOS)
+
+endif()

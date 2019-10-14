@@ -11,11 +11,30 @@ set(CC_NETWORK_SOURCES
     network/SocketIO.h
     network/Uri.h
     network/WebSocket.h
-    network/CCDownloader-curl.cpp
     network/CCDownloader.cpp
-    network/HttpClient.cpp
     network/HttpCookie.cpp
     network/SocketIO.cpp
     network/Uri.cpp
-    network/WebSocket-libwebsockets.cpp
 )
+
+
+if(WINDOWS)
+    list(APPEND CC_NETWORK_SOURCES 
+        network/HttpClient.cpp
+        network/CCDownloader-curl.cpp
+        network/WebSocket-libwebsockets.cpp
+    )
+elseif(ANDROID)
+    list(APPEND CC_NETWORK_SOURCES 
+        network/CCDownloader-android.cpp
+        network/WebSocket-libwebsockets.cpp
+        network/HttpClient-android.cpp
+    )
+elseif(APPLE)
+    list(APPEND CC_NETWORK_SOURCES 
+        network/CCDownloaderImpl-apple.mm
+        network/HttpAsynConnection-apple.mm
+        network/HttpClient-apple.mm
+        network/WebSocket-apple.mm
+    )
+endif()
