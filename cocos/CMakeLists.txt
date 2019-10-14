@@ -2,8 +2,9 @@
 set(COCOSLIB cocos2d)
 
 
-option(USE_SPINE "Enable Spine" ON)
-option(USE_DRAGONBONES "Enable DragonBones" ON)
+option(USE_SPINE "Enable SpineAPI" ON)
+option(USE_DRAGONBONES "Enable DragonBonesAPI" ON)
+
 
 include(audio/CMakeLists.txt)
 include(platform/CMakeLists.txt)
@@ -12,7 +13,7 @@ include(network/CMakeLists.txt)
 include(scripting/CMakeLists.txt)
 include(renderer/CMakeLists.txt)
 
-include(../external/sources/CMakeLists.txt)
+include(../external/CMakeLists.txt)
 
 set(CC_BASE_HEADERS 
     cocos2d.h
@@ -98,7 +99,6 @@ set(CC_BASE_SOURCES
     storage/local-storage/LocalStorage.cpp
 )
 
-include(../external/sources/CMakeLists.txt)
 
 set(COCOS_SOUCECODE_SOURCES 
     ${CC_BASE_HEADERS} 
@@ -112,25 +112,9 @@ set(COCOS_SOUCECODE_SOURCES
     ${CC_EXTERNAL_SROUCES}
 )
 
-
-
-list(APPEND COCOS_SOUCECODE_SOURCES})
-
-
-if(USE_SPINE) 
-    enable_language(C)
-    include(editor-support/spine/CMakeLists.txt)
-    SET(COCOS_SOUCECODE_SOURCES
-        ${COCOS_SOUCECODE_SOURCES}
-        ${SPINE_SRC_FILES}
-    )
-
-else()
-    message(STATUS "!!!!!!!!!!!!!! cocos2d did not link to lib spine...")
-endif()
-
-
 add_library(${COCOSLIB} ${COCOS_SOUCECODE_SOURCES})
+
+set_property(TARGET ${COCOSLIB} PROPERTY CXX_STANDARD 11)
 
 target_include_directories(${COCOSLIB} PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -146,28 +130,18 @@ target_include_directories(${COCOSLIB} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/uv
 )
 
-
-if(USE_SPINE)
-    target_compile_definitions(${COCOSLIB} PUBLIC 
-        USE_DRAGONBONES=1
-    )
-endif()
-
 use_cocos2dx_compile_define(${COCOSLIB})
+target_compile_definitions(${COCOSLIB} PUBLIC 
+    $<$<NOT:$<BOOL:${USE_SPINE}>>:USE_SPINE=0>
+    $<$<NOT:$<BOOL:${USE_DRAGONBONES}>>:USE_DRAGONBONES=0>
+)
 
 
-set_property(TARGET ${COCOSLIB} PROPERTY CXX_STANDARD 11)
 
 cocos_mark_code_files(${COCOSLIB})
 
+use_cocos2dx_libs_depend(${COCOSLIB})
 target_link_libraries(${COCOSLIB} 
-    ws2_32
-    userenv
-    psapi
-    winmm
-    Version
-    Iphlpapi
-    opengl32
     ${CC_EXTERNAL_LIBS}
 )
 
