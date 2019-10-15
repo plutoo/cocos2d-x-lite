@@ -1,9 +1,6 @@
 
 set(COCOSLIB cocos2d)
 
-
-
-
 include(audio/CMakeLists.txt)
 include(platform/CMakeLists.txt)
 include(editor-support/CMakeLists.txt)

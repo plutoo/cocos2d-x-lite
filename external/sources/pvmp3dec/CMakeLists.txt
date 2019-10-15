@@ -35,7 +35,9 @@ set(PVMP3SOURCE
 
 
 
-if("${ANDROID_ABI}" MATCHES "arm.*")
+message(STATUS "-------------------abi for pvmp3:${ANDROID_ABI}------------------------------")
+
+if("${ANDROID_ABI}" MATCHES "armeabi.*")
     message(STATUS "pvmp3dec compile with asm")
     set(PVMP3SOURCE_ASM
         ${CMAKE_CURRENT_LIST_DIR}/src/asm/pvmp3_polyphase_filter_window_gcc.s

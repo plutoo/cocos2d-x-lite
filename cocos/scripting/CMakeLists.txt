@@ -69,7 +69,7 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
 )
 
-if(CC_V8_DEBUGGER)
+if(USE_V8_DEBUGGER)
     list(APPEND CC_SCRIPTING_SOURCES
         scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp 
         scripting/js-bindings/jswrapper/v8/debugger/util.cc 

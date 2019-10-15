@@ -2,16 +2,17 @@ cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME ExampleCollection)
 
+set(LIB_NAME cocos2djs)
 
-set(COCOS2DX_LITE_ROOT ${COCOS_X_ROOT})
-#set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
+#set(COCOS2DX_LITE_ROOT ${COCOS_X_ROOT})
+set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
 set(CMAKE_MODULE_PATH ${COCOS2DX_LITE_ROOT}/cmake/Modules)
 
 project(${APP_NAME} CXX)
 
 include(CocosBuildSet)
 
-add_subdirectory(${COCOS2DX_LITE_ROOT}/cocos native_engine)
+add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 
 set(GAME_SOURCES
     Classes/AppDelegate.cpp
@@ -47,6 +48,10 @@ if(WINDOWS)
         proj.win32/main.h
         proj.win32/resource.h
     )
+elseif(ANDROID)
+    list(APPEND GAME_SOURCES
+        proj.android-studio/app/jni/hellojavascript/main.cpp
+    )
 endif()
 
 set(ALL_SOURCE_CODE 
@@ -55,50 +60,57 @@ set(ALL_SOURCE_CODE
 )
 
 if(NOT ANDROID)
-    add_executable(${APP_NAME} ${ALL_SOURCE_CODE})
+    add_executable(${LIB_NAME} ${ALL_SOURCE_CODE})
 else()
-    add_library(${APP_NAME} SHARED ${ALL_SOURCE_CODE})
+    add_library(${LIB_NAME} SHARED ${ALL_SOURCE_CODE})
 endif()
 
 
 
-set_property(TARGET ${APP_NAME} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 11)
 
-target_link_libraries(${APP_NAME} cocos2d)
-target_include_directories(${APP_NAME}
+target_link_libraries(${LIB_NAME} cocos2d)
+target_include_directories(${LIB_NAME}
     PRIVATE Classes/
 )
 
 # mark app resources
-setup_cocos_app_config(${APP_NAME})
+setup_cocos_app_config(${LIB_NAME})
 
 
 if(APPLE)
-    set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
+    set_target_properties(${LIB_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
     if(MACOSX)
-        set_target_properties(${APP_NAME} PROPERTIES
+        set_target_properties(${LIB_NAME} PROPERTIES
                               MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.mac/Info.plist"
                               )
     elseif(IOS)
-        cocos_pak_xcode(${APP_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
-        set_xcode_property(${APP_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon-${APP_NAME}")
-        set_xcode_property(${APP_NAME} DEVELOPMENT_TEAM "")
-        set_xcode_property(${APP_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
+        cocos_pak_xcode(${LIB_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
+        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon-${LIB_NAME}")
+        set_xcode_property(${LIB_NAME} DEVELOPMENT_TEAM "")
+        set_xcode_property(${LIB_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
     endif()
 elseif(WINDOWS)
     # "too large PDB" error often occurs in cpp-tests when using default "/Zi"
-    target_compile_options(${APP_NAME} PRIVATE /Z7)
-    cocos_copy_target_dll(${APP_NAME})
+    target_compile_options(${LIB_NAME} PRIVATE /Z7)
+    #cocos_copy_target_dll(${LIB_NAME})
+    set(APP_RES_DIR "$<TARGET_FILE_DIR:${LIB_NAME}>")
+    file(GLOB EXT_WINDLL ${COCOS2DX_LITE_ROOT}/external/win32/libs/*.dll)
+    file(GLOB EXT_WINDLL_DBG ${COCOS2DX_LITE_ROOT}/external/win32/libs/Debug/*.dll)
+    #cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_FOLDERS})
+    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${EXT_WINDLL} ${EXT_WINDLL_DBG} ${APP_RES_DIR}
+    )
 endif()
 
-if(LINUX OR WINDOWS)
-    set(APP_RES_DIR "$<TARGET_FILE_DIR:${APP_NAME}>")
-    cocos_copy_target_res(${APP_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_FOLDERS})
+if(WINDOWS)
+    set(APP_RES_DIR "$<TARGET_FILE_DIR:${LIB_NAME}>")
+    cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_FOLDERS})
 endif()
 
 # if(WINDOWS)
 #     # precompiled header. Compilation time speedup ~4x.
-#     target_sources(${APP_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Classes/precheader.cpp")
-#     set_target_properties(${APP_NAME} PROPERTIES COMPILE_FLAGS "/Yuprecheader.h /FIprecheader.h")
+#     target_sources(${LIB_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Classes/precheader.cpp")
+#     set_target_properties(${LIB_NAME} PROPERTIES COMPILE_FLAGS "/Yuprecheader.h /FIprecheader.h")
 #     set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Classes/precheader.cpp" PROPERTIES COMPILE_FLAGS "/Ycprecheader.h")
 # endif()
