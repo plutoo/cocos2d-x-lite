@@ -96,41 +96,42 @@ set_target_properties(v8_base_without_compiler PROPERTIES
 )
 
 
-set(V8_ARCHIVE_DIR ${CMAKE_CURRENT_BINARY_DIR}/v8_tmp)
+# set(V8_ARCHIVE_DIR ${CMAKE_CURRENT_BINARY_DIR}/v8_tmp)
 
-#add_custom_target(v8_static_build
-add_custom_command(OUTPUT ${V8_ARCHIVE_DIR}/v8_static.a
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${V8_ARCHIVE_DIR}
-    COMMAND ar -x $<TARGET_FILE:v8_libbase>
-    COMMAND ar -x $<TARGET_FILE:v8_libplatform>
-    COMMAND ar -x $<TARGET_FILE:v8_libsampler>
-    COMMAND ar -x $<TARGET_FILE:v8_snapshot>
-    COMMAND ar -x $<TARGET_FILE:v8_compiler>
-    COMMAND ar -x $<TARGET_FILE:v8_base_without_compiler>
-    COMMAND ar -qcs ${V8_ARCHIVE_DIR}/v8_static.a *.o
-    WORKING_DIRECTORY ${V8_ARCHIVE_DIR}
-    DEPENDS ${V8_LIBS}
-)
+# #add_custom_target(v8_static_build
+# add_custom_command(OUTPUT ${V8_ARCHIVE_DIR}/v8_static.a
+#     COMMAND ${CMAKE_COMMAND} -E make_directory ${V8_ARCHIVE_DIR}
+#     COMMAND ar -x $<TARGET_FILE:v8_libbase>
+#     COMMAND ar -x $<TARGET_FILE:v8_libplatform>
+#     COMMAND ar -x $<TARGET_FILE:v8_libsampler>
+#     COMMAND ar -x $<TARGET_FILE:v8_snapshot>
+#     COMMAND ar -x $<TARGET_FILE:v8_compiler>
+#     COMMAND ar -x $<TARGET_FILE:v8_base_without_compiler>
+#     COMMAND ar -qcs ${V8_ARCHIVE_DIR}/v8_static.a *.o
+#     WORKING_DIRECTORY ${V8_ARCHIVE_DIR}
+#     DEPENDS ${V8_LIBS}
+# )
 
 
 add_library(v8_static STATIC IMPORTED GLOBAL)
-add_dependencies(v8_static v8_static_build)
+#add_dependencies(v8_static v8_static_build)
 set_target_properties(v8_static PROPERTIES
-  IMPORTED_LOCATION ${V8_ARCHIVE_DIR}/v8_static.a
+  #IMPORTED_LOCATION ${V8_ARCHIVE_DIR}/v8_static.a
+  IMPORTED_LOCATION ${platform_spec_path}/v8/v8_static.a
 )
 
 list(APPEND CC_EXTERNAL_LIBS
+    websockets
+    ssl
     freetype
     crypto
     #curl
     jpeg
     png
-    ssl
     tiff
     uv
     webp
     z
-    websockets
     OpenSLES
     v8_static
 )
