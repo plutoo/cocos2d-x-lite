@@ -2,8 +2,6 @@
 set(COCOSLIB cocos2d)
 
 
-option(USE_SPINE "Enable SpineAPI" ON)
-option(USE_DRAGONBONES "Enable DragonBonesAPI" ON)
 
 
 include(audio/CMakeLists.txt)

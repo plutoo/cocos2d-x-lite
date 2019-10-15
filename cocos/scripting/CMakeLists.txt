@@ -21,7 +21,6 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/jswrapper/v8/HelperMacros.h
     scripting/js-bindings/jswrapper/v8/ObjectWrap.h
     scripting/js-bindings/jswrapper/v8/SeApi.h
-    scripting/js-bindings/manual/JavaScriptJavaBridge.h
     scripting/js-bindings/manual/JavaScriptObjCBridge.h
     scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
     scripting/js-bindings/manual/jsb_global.h
@@ -63,10 +62,40 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/manual/jsb_spine_manual.cpp
     scripting/js-bindings/manual/jsb_opengl_manual.cpp
     scripting/js-bindings/manual/jsb_opengl_utils.cpp
-    #scripting/js-bindings/manual/jsb_platform_android.cpp
     scripting/js-bindings/manual/jsb_platfrom_win32.cpp
     scripting/js-bindings/manual/jsb_renderer_manual.cpp
     scripting/js-bindings/manual/jsb_socketio.cpp
     scripting/js-bindings/manual/jsb_websocket.cpp
     scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
 )
+
+if(CC_V8_DEBUGGER)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp 
+        scripting/js-bindings/jswrapper/v8/debugger/util.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/env.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/node.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc 
+        scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
+    )
+endif()
+
+if(ANDROID)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/manual/JavaScriptJavaBridge.h
+        scripting/js-bindings/manual/jsb_platform_android.cpp
+        scripting/js-bindings/manual/JavaScriptJavaBridge.cpp
+    )
+elseif(WINDOWS)
+
+elseif(MACOSX)
+
+elseif(IOS)
+
+endif()
+
+

@@ -49,15 +49,25 @@ set_target_properties(z PROPERTIES
   IMPORTED_LOCATION ${platform_spec_path}/libz.a
 )
 
-#  v8_libbase v8_libplatform v8_libsampler v8_snapshot v8_compiler
-add_library(v8_libplatform STATIC IMPORTED GLOBAL)
-set_target_properties(v8_libplatform PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/v8/libv8_libplatform.a
+set(V8_LIBS
+    v8_libbase 
+    v8_libplatform 
+    v8_libsampler 
+    v8_snapshot 
+    v8_compiler
+   # v8_inspector 
+    v8_base_without_compiler
 )
 
 add_library(v8_libbase STATIC IMPORTED GLOBAL)
 set_target_properties(v8_libbase PROPERTIES
   IMPORTED_LOCATION ${platform_spec_path}/v8/libv8_libbase.a
+)
+
+
+add_library(v8_libplatform STATIC IMPORTED GLOBAL)
+set_target_properties(v8_libplatform PROPERTIES
+  IMPORTED_LOCATION ${platform_spec_path}/v8/libv8_libplatform.a
 )
 
 add_library(v8_libsampler STATIC IMPORTED GLOBAL)
@@ -70,16 +80,49 @@ set_target_properties(v8_snapshot PROPERTIES
   IMPORTED_LOCATION ${platform_spec_path}/v8/libv8_snapshot.a
 )
 
+add_library(v8_inspector STATIC IMPORTED GLOBAL)
+set_target_properties(v8_inspector PROPERTIES
+  IMPORTED_LOCATION ${platform_spec_path}/v8/libinspector.a
+)
+
 add_library(v8_compiler STATIC IMPORTED GLOBAL)
 set_target_properties(v8_compiler PROPERTIES
   IMPORTED_LOCATION ${platform_spec_path}/v8/libv8_compiler.a
 )
 
+add_library(v8_base_without_compiler STATIC IMPORTED GLOBAL)
+set_target_properties(v8_base_without_compiler PROPERTIES
+  IMPORTED_LOCATION ${platform_spec_path}/v8/libv8_base_without_compiler.a
+)
 
-set(CC_EXTERNAL_LIBS
+
+set(V8_ARCHIVE_DIR ${CMAKE_CURRENT_BINARY_DIR}/v8_tmp)
+
+#add_custom_target(v8_static_build
+add_custom_command(OUTPUT ${V8_ARCHIVE_DIR}/v8_static.a
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${V8_ARCHIVE_DIR}
+    COMMAND ar -x $<TARGET_FILE:v8_libbase>
+    COMMAND ar -x $<TARGET_FILE:v8_libplatform>
+    COMMAND ar -x $<TARGET_FILE:v8_libsampler>
+    COMMAND ar -x $<TARGET_FILE:v8_snapshot>
+    COMMAND ar -x $<TARGET_FILE:v8_compiler>
+    COMMAND ar -x $<TARGET_FILE:v8_base_without_compiler>
+    COMMAND ar -qcs ${V8_ARCHIVE_DIR}/v8_static.a *.o
+    WORKING_DIRECTORY ${V8_ARCHIVE_DIR}
+    DEPENDS ${V8_LIBS}
+)
+
+
+add_library(v8_static STATIC IMPORTED GLOBAL)
+add_dependencies(v8_static v8_static_build)
+set_target_properties(v8_static PROPERTIES
+  IMPORTED_LOCATION ${V8_ARCHIVE_DIR}/v8_static.a
+)
+
+list(APPEND CC_EXTERNAL_LIBS
     freetype
     crypto
-    curl
+    #curl
     jpeg
     png
     ssl
@@ -87,9 +130,13 @@ set(CC_EXTERNAL_LIBS
     uv
     webp
     z
-    v8_libbase v8_libplatform v8_libsampler v8_snapshot v8_compiler
     websockets
-    cpu-features
     OpenSLES
-    pvmp3dec
+    v8_static
 )
+
+if(CC_V8_DEBUGGER)
+    list(APPEND CC_EXTERNAL_LIBS
+        v8_inspector
+    )
+endif()

@@ -1,5 +1,6 @@
 
 
+
 set(CC_EXTERNAL_SROUCES
   ${CMAKE_CURRENT_LIST_DIR}/tinyxml2/tinyxml2.cpp
   ${CMAKE_CURRENT_LIST_DIR}/tinyxml2/tinyxml2.h
@@ -14,9 +15,19 @@ set(CC_EXTERNAL_SROUCES
   ${CMAKE_CURRENT_LIST_DIR}/unzip/ioapi_mem.h
   ${CMAKE_CURRENT_LIST_DIR}/unzip/unzip.cpp
   ${CMAKE_CURRENT_LIST_DIR}/unzip/unzip.h
-  )
+)
 
   if(ANDROID)
+
+    include(${CMAKE_CURRENT_LIST_DIR}/pvmp3dec/CMakeLists.txt)
+    include(${CMAKE_CURRENT_LIST_DIR}/ConvertUTF/CMakeLists.txt)
+    include(${CMAKE_CURRENT_LIST_DIR}/tremolo/CMakeLists.txt)
+
+    list(APPEND CC_EXTERNAL_LIBS 
+      pvmp3dec
+      ConvertUTF
+      vorbisidec
+    )
 
     if(ANDROID_NDK)
       list(APPEND CC_EXTERNAL_SROUCES

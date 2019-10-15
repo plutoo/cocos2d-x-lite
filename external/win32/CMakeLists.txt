@@ -203,7 +203,7 @@ set_target_properties(websockets PROPERTIES
   IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/websockets.lib
 )
 
-set(CC_EXTERNAL_LIBS
+list(APPEND CC_EXTERNAL_LIBS
     freetype
     glew32
     glfw3
