@@ -26,16 +26,13 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/manual/jsb_global.h
     scripting/js-bindings/manual/jsb_platform.h
 
-    scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
     scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp
     scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.cpp
     scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.cpp
-    #scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp
+    scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp
     scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp
     scripting/js-bindings/auto/jsb_gfx_auto.cpp
     scripting/js-bindings/auto/jsb_renderer_auto.cpp
-    scripting/js-bindings/auto/jsb_video_auto.cpp
-    scripting/js-bindings/auto/jsb_webview_auto.cpp
     scripting/js-bindings/event/EventDispatcher.cpp
     scripting/js-bindings/jswrapper/config.cpp
     scripting/js-bindings/jswrapper/HandleObject.cpp
@@ -50,7 +47,7 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/jswrapper/v8/Utils.cpp
     scripting/js-bindings/jswrapper/Value.cpp
     scripting/js-bindings/manual/jsb_classtype.cpp
-    # scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.cpp
+    #scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.cpp
     scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp
     scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp
     scripting/js-bindings/manual/jsb_conversions.cpp
@@ -64,8 +61,6 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/manual/jsb_opengl_utils.cpp
     scripting/js-bindings/manual/jsb_platfrom_win32.cpp
     scripting/js-bindings/manual/jsb_renderer_manual.cpp
-    scripting/js-bindings/manual/jsb_socketio.cpp
-    scripting/js-bindings/manual/jsb_websocket.cpp
     scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
 )
 
@@ -83,6 +78,59 @@ if(USE_V8_DEBUGGER)
         scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
     )
 endif()
+
+
+if(USE_AUDIO) 
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
+    )
+endif()
+
+if(USE_SOCKET)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/manual/jsb_socketio.cpp
+        scripting/js-bindings/manual/jsb_websocket.cpp
+    )
+endif()
+
+if(USE_MIDDLEWARE)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.cpp
+    )
+endif()
+
+if(USE_MIDDLEWARE AND USE_SPINE)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/manual/jsb_spine_manual.cpp
+        scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.cpp
+    )
+endif()
+
+if(USE_MIDDLEWARE AND USE_DRAGONBONES)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/manual/jsb_dragonbones_manual.cpp
+        scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.cpp
+    )
+endif()
+
+if(ANDROID OR IOS)
+    if(USE_VIDEO)
+        list(APPEND CC_SCRIPTING_SOURCES
+            scripting/js-bindings/auto/jsb_video_auto.cpp
+        )
+    endif()
+    if(USE_WEBVIEW)
+        list(APPEND CC_SCRIPTING_SOURCES
+            scripting/js-bindings/auto/jsb_webview_auto.cpp
+        )
+    endif()
+else()
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/auto/jsb_video_auto.cpp
+        scripting/js-bindings/auto/jsb_webview_auto.cpp
+    )
+endif()
+
 
 if(ANDROID)
     list(APPEND CC_SCRIPTING_SOURCES

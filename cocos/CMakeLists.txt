@@ -7,7 +7,7 @@ include(editor-support/CMakeLists.txt)
 include(network/CMakeLists.txt)
 include(scripting/CMakeLists.txt)
 include(renderer/CMakeLists.txt)
-
+include(../extensions/CMakeLists.txt)
 include(../external/CMakeLists.txt)
 
 set(CC_BASE_HEADERS 
@@ -99,10 +99,18 @@ if(WINDOWS)
 elseif(ANDROID)
     list(APPEND CC_BASE_SOURCES
         ui/edit-box/EditBox-android.cpp
-        ui/videoplayer/VideoPlayer-android.cpp
-        ui/webview/WebViewImpl-android.cpp
         storage/local-storage/LocalStorage-android.cpp
     )
+    if(USE_VIDEO)
+        list(APPEND CC_BASE_SOURCES
+            ui/videoplayer/VideoPlayer-android.cpp
+        )
+    endif()
+    if(USE_WEB_VIEW)
+        list(APPEND CC_BASE_SOURCES
+            ui/webview/WebViewImpl-android.cpp
+        )
+    endif()
 elseif(MACOSX)
     list(APPEND CC_BASE_SOURCES
         ui/edit-box/EditBox-mac.mm
@@ -111,24 +119,45 @@ elseif(MACOSX)
 elseif(IOS)
     list(APPEND CC_BASE_SOURCES
         ui/edit-box/EditBox-ios.mm
-        ui/videoplayer/VideoPlayer-ios.mm
-        ui/webview/WebViewImpl-ios.mm
         storage/local-storage/LocalStorage.cpp
     )
+    if(USE_VIDEO)
+        list(APPEND CC_BASE_SOURCES
+            ui/videoplayer/VideoPlayer-ios.mm
+        )
+    endif()
+    if(USE_WEB_VIEW)
+        list(APPEND CC_BASE_SOURCES
+            ui/webview/WebViewImpl-ios.mm
+        )
+    endif()
 endif()
+
+
 
 
 set(COCOS_SOUCECODE_SOURCES 
     ${CC_BASE_HEADERS} 
     ${CC_BASE_SOURCES}
-    ${CC_AUDIO_SOURCES}
-    ${CC_EDITORSUPPORT_SOURCES}
     ${CC_NETWORK_SOURCES}
     ${CC_SCRIPTING_SOURCES}
     ${CC_RENDERER_SOURCES}
     ${CC_PLATFORM_SOURCES}
     ${CC_EXTERNAL_SROUCES}
+    ${CC_EXTENSIONS_SOURCES}
 )
+
+if(USE_AUDIO)
+    list(APPEND COCOS_SOUCECODE_SOURCES
+        ${CC_AUDIO_SOURCES}
+    )
+endif()
+
+if(USE_MIDDLEWARE)
+    list(APPEND COCOS_SOUCECODE_SOURCES
+        ${CC_EDITORSUPPORT_SOURCES}
+    )
+endif()
 
 add_library(${COCOSLIB} ${COCOS_SOUCECODE_SOURCES})
 
@@ -177,11 +206,15 @@ endif()
 
 use_cocos2dx_compile_define(${COCOSLIB})
 target_compile_definitions(${COCOSLIB} PUBLIC 
+    $<$<NOT:$<BOOL:${USE_VIDEO}>>:USE_VIDEO=0>
+    $<$<NOT:$<BOOL:${USE_WEB_VIEW}>>:USE_WEB_VIEW=0>
+    $<$<NOT:$<BOOL:${USE_AUDIO}>>:USE_AUDIO=0>
+    $<$<NOT:$<BOOL:${USE_SOCKET}>>:USE_SOCKET=0>
+    $<$<NOT:$<BOOL:${USE_MIDDLEWARE}>>:USE_MIDDLEWARE=0>
     $<$<NOT:$<BOOL:${USE_SPINE}>>:USE_SPINE=0>
     $<$<NOT:$<BOOL:${USE_DRAGONBONES}>>:USE_DRAGONBONES=0>
+    $<$<NOT:$<BOOL:${USE_TIFF}>>:CC_USE_TIFF=0>
 )
-
-
 
 cocos_mark_code_files(${COCOSLIB})
 

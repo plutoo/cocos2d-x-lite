@@ -18,23 +18,42 @@ set(CC_NETWORK_SOURCES
 )
 
 
+if(USE_SOCKET)
+    list(APPEND CC_NETWORK_SOURCES
+        network/SocketIO.cpp
+    )
+endif()
+
 if(WINDOWS)
     list(APPEND CC_NETWORK_SOURCES 
         network/HttpClient.cpp
         network/CCDownloader-curl.cpp
         network/WebSocket-libwebsockets.cpp
     )
+    if(USE_SOCKET)
+        list(APPEND CC_NETWORK_SOURCES
+            network/WebSocket-libwebsockets.cpp
+        )
+    endif()
 elseif(ANDROID)
     list(APPEND CC_NETWORK_SOURCES 
         network/CCDownloader-android.cpp
-        network/WebSocket-libwebsockets.cpp
         network/HttpClient-android.cpp
     )
+    if(USE_SOCKET)
+        list(APPEND CC_NETWORK_SOURCES
+            network/WebSocket-libwebsockets.cpp
+        )
+    endif()
 elseif(APPLE)
     list(APPEND CC_NETWORK_SOURCES 
         network/CCDownloaderImpl-apple.mm
         network/HttpAsynConnection-apple.mm
         network/HttpClient-apple.mm
-        network/WebSocket-apple.mm
     )
+    if(USE_SOCKET)
+        list(APPEND CC_NETWORK_SOURCES
+            network/WebSocket-apple.mm
+        )
+    endif()
 endif()

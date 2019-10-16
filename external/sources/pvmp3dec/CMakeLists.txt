@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 
 
 
-enable_language(ASM)
-
 set(PVMP3SOURCE 
     ${CMAKE_CURRENT_LIST_DIR}/src/pvmp3_normalize.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/pvmp3_alias_reduction.cpp
@@ -68,9 +66,9 @@ target_include_directories(pvmp3dec PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-set_target_properties(pvmp3dec 
-    PROPERTIES LINK_LANGUAGE ASM
-)
+# set_target_properties(pvmp3dec 
+#     PROPERTIES LINK_LANGUAGE ASM
+# )
 
 file(WRITE ${CMAKE_CURRENT_LIST_DIR}/def.h "#pragma once\n#define OSCL_UNUSED_ARG(x) (void)(x)")
 

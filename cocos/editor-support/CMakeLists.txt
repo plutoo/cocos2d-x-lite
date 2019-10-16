@@ -23,12 +23,8 @@ list(APPEND CC_EDITORSUPPORT_SOURCES
     editor-support/spine-creator-support/SpineRenderer.cpp
     editor-support/spine-creator-support/spine-cocos2dx.cpp
     editor-support/spine-creator-support/SkeletonDataMgr.cpp
-    editor-support/../scripting/js-bindings/manual/jsb_spine_manual.cpp
-    editor-support/../scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.cpp
     )
 
-    ## include spine source code
-    enable_language(C)
     include(editor-support/spine/CMakeLists.txt)
     list(APPEND CC_EDITORSUPPORT_SOURCES
         ${SPINE_SRC_FILES}
@@ -73,7 +69,5 @@ list(APPEND CC_EDITORSUPPORT_SOURCES
     editor-support/dragonbones-creator-support/CCFactory.cpp
     editor-support/dragonbones-creator-support/CCSlot.cpp
     editor-support/dragonbones-creator-support/CCTextureAtlasData.cpp
-    editor-support/../scripting/js-bindings/manual/jsb_dragonbones_manual.cpp
-    editor-support/../scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.cpp
 )
 endif()

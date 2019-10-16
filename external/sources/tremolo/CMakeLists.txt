@@ -19,6 +19,8 @@ set(VORIBISIDEC_SOURCE
 
 add_library(vorbisidec ${VORIBISIDEC_SOURCE})
 
+set_target_properties(vorbisidec PROPERTIES LANGUAGE C)
+
 target_include_directories(vorbisidec PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/Tremolo
 )

@@ -98,48 +98,14 @@ set_target_properties(v8_base_without_compiler PROPERTIES
 
 set(V8_ARCHIVE_DIR ${CMAKE_CURRENT_BINARY_DIR}/v8_tmp)
 
-
-
-# #add_custom_target(v8_static_build
-# add_custom_command(OUTPUT ${V8_ARCHIVE_DIR}/v8_static.a
-#     COMMAND ${CMAKE_COMMAND} -E make_directory ${V8_ARCHIVE_DIR}
-#     COMMAND ar -x $<TARGET_FILE:v8_libbase>
-#     COMMAND ar -x $<TARGET_FILE:v8_libplatform>
-#     COMMAND ar -x $<TARGET_FILE:v8_libsampler>
-#     COMMAND ar -x $<TARGET_FILE:v8_snapshot>
-#     COMMAND ar -x $<TARGET_FILE:v8_compiler>
-#     COMMAND ar -x $<TARGET_FILE:v8_base_without_compiler>
-#     COMMAND ar -qcs ${V8_ARCHIVE_DIR}/v8_static.a ${V8_ARCHIVE_DIR}/*.o
-#     WORKING_DIRECTORY ${V8_ARCHIVE_DIR}
-#     DEPENDS ${V8_LIBS}
-# )
-
-message(STATUS "--------------${V8_ARCHIVE_DIR}--/ ${USE_V8_DEBUGGER}---------------------")
-message(STATUS "?????$<TARGET_PROPERTY:v8_libbase,IMPORTED_LOCATION>")
-
 if(NOT EXISTS ${V8_ARCHIVE_DIR}) 
     file(MAKE_DIRECTORY ${V8_ARCHIVE_DIR})
 endif()
 
 if(NOT EXISTS ${V8_ARCHIVE_DIR}/v8_static.a)
 
-# execute_process(
-#     COMMAND ${CMAKE_COMMAND} -E make_directory ${V8_ARCHIVE_DIR}
-#     COMMAND ${CMAKE_COMMAND} -E echo "?????$<TARGET_PROPERTY:v8_libbase.a"
-#     COMMAND ${CMAKE_AR} -x $<TARGET_PROPERTY:v8_libbase,IMPORTED_LOCATION>
-#     COMMAND ${CMAKE_AR} -x $<TARGET_PROPERTY:v8_libplatform,IMPORTED_LOCATION>
-#     COMMAND ${CMAKE_AR} -x $<TARGET_PROPERTY:v8_libsampler,IMPORTED_LOCATION>
-#     COMMAND ${CMAKE_AR} -x $<TARGET_PROPERTY:v8_snapshot,IMPORTED_LOCATION>
-#     COMMAND ${CMAKE_AR} -x $<TARGET_PROPERTY:v8_compiler,IMPORTED_LOCATION>
-# #     COMMAND ${CMAKE_AR} -x $<TARGET_PROPERTY:v8_base_without_compiler,IMPORTED_LOCATION>
-# #     COMMAND ${CMAKE_AR} -qcs ${V8_ARCHIVE_DIR}/v8_static.a *.o
-# #     WORKING_DIRECTORY ${V8_ARCHIVE_DIR}
-# # )
-# # endif()
-
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${V8_ARCHIVE_DIR}
-        COMMAND ${CMAKE_COMMAND} -E echo "xxx????$<TARGET_PROPERTY:v8_libbase,IMPORTED_LOCATION>"
         COMMAND ${CMAKE_AR} -x ${platform_spec_path}/v8/libv8_libbase.a
         COMMAND ${CMAKE_AR} -x ${platform_spec_path}/v8/libv8_libplatform.a
         COMMAND ${CMAKE_AR} -x ${platform_spec_path}/v8/libv8_libsampler.a
@@ -164,37 +130,37 @@ endif()
 
 
 add_library(v8_static STATIC IMPORTED GLOBAL)
-add_dependencies(v8_static v8_static_build)
 set_target_properties(v8_static PROPERTIES
   IMPORTED_LOCATION ${V8_ARCHIVE_DIR}/v8_static.a
 )
 
-# add_library(v8_static STATIC
-#     $<TARGET_OBJECTS:v8_libbase>
-#     $<TARGET_OBJECTS:v8_libplatform>
-#     $<TARGET_OBJECTS:v8_libbv8_libsamplerase>
-#     $<TARGET_OBJECTS:v8_snapshot>
-#     $<TARGET_OBJECTS:v8_compiler>
-#     $<TARGET_OBJECTS:v8_base_without_compiler>
-# )
+if(USE_SOCKET)
+    list(APPEND CC_EXTERNAL_LIBS
+        websockets
+        ssl
+        crypto
+    )
+endif()
 
-list(APPEND CC_EXTERNAL_LIBS
-    websockets
-    ssl
-    freetype
-    crypto
-    jpeg
-    png
-    tiff
-    uv
-    webp
-    z
-    OpenSLES
-    v8_static
-)
+if(USE_TIFF)
+    list(APPEND CC_EXTERNAL_LIBS
+        tiff
+    )
+endif()
 
 if(USE_V8_DEBUGGER)
     list(APPEND CC_EXTERNAL_LIBS
         v8_inspector
     )
 endif()
+
+list(APPEND CC_EXTERNAL_LIBS
+    freetype
+    jpeg
+    png
+    uv
+    webp
+    OpenSLES
+    v8_static
+    z
+)
