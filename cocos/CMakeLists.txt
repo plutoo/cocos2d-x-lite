@@ -214,6 +214,7 @@ target_compile_definitions(${COCOSLIB} PUBLIC
     $<$<NOT:$<BOOL:${USE_SPINE}>>:USE_SPINE=0>
     $<$<NOT:$<BOOL:${USE_DRAGONBONES}>>:USE_DRAGONBONES=0>
     $<$<NOT:$<BOOL:${USE_TIFF}>>:CC_USE_TIFF=0>
+    $<$<BOOL:${USE_GFX_RENDERER}>:USE_GFX_RENDERER=1>
 )
 
 cocos_mark_code_files(${COCOSLIB})
