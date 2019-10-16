@@ -119,7 +119,7 @@ if(ANDROID OR IOS)
             scripting/js-bindings/auto/jsb_video_auto.cpp
         )
     endif()
-    if(USE_WEBVIEW)
+    if(USE_WEB_VIEW)
         list(APPEND CC_SCRIPTING_SOURCES
             scripting/js-bindings/auto/jsb_webview_auto.cpp
         )

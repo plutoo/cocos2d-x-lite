@@ -217,7 +217,24 @@ target_compile_definitions(${COCOSLIB} PUBLIC
     $<$<NOT:$<BOOL:${USE_DRAGONBONES}>>:USE_DRAGONBONES=0>
     $<$<NOT:$<BOOL:${USE_TIFF}>>:CC_USE_TIFF=0>
     $<$<BOOL:${USE_GFX_RENDERER}>:USE_GFX_RENDERER=1>
+    $<$<NOT:$<BOOL:${USE_V8_DEBUGGER}>>:USE_V8_DEBUGGER=0>
 )
+
+if(NOT USE_SE_AUTO)
+    set(ENGINE_ID 0)   
+    if(USE_SE_SM) 
+        set(ENGINE_ID 1)
+    endif()
+    if(USE_SE_V8) 
+        set(ENGINE_ID 2)
+    endif()
+    if(USE_SE_JSC) 
+        set(ENGINE_ID 3)
+    endif()
+    target_compile_definitions(${COCOSLIB} PUBLIC
+        SCRIPT_ENGINE_TYPE=${ENGINE_ID}
+    )
+endif()
 
 cocos_mark_code_files(${COCOSLIB})
 
