@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME ExampleCollection)
 
-set(LIB_NAME cocos2djs)
 
 #set(COCOS2DX_LITE_ROOT ${COCOS_X_ROOT})
 set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
@@ -11,6 +10,13 @@ set(CMAKE_MODULE_PATH ${COCOS2DX_LITE_ROOT}/cmake/Modules)
 project(${APP_NAME} CXX)
 
 include(CocosBuildSet)
+
+if(ANDROID)
+    set(LIB_NAME cocos2djs)
+else()
+    set(LIB_NAME ${APP_NAME})
+endif()
+
 
 add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 

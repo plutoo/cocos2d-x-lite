@@ -205,6 +205,8 @@ elseif(IOS)
 endif()
 
 use_cocos2dx_compile_define(${COCOSLIB})
+
+#TODO: document
 target_compile_definitions(${COCOSLIB} PUBLIC 
     $<$<NOT:$<BOOL:${USE_VIDEO}>>:USE_VIDEO=0>
     $<$<NOT:$<BOOL:${USE_WEB_VIEW}>>:USE_WEB_VIEW=0>
