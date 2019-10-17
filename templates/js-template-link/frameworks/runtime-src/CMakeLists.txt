@@ -19,7 +19,7 @@ set(USE_DRAGONBONES     ON) #Enable DragonBonesAPI
 set(USE_V8_DEBUGGER     ON) #Enable V8 Inspector
 set(USE_GFX_RENDERER    OFF)#Enable GFX Renderer
 set(USE_VIDEO           ON) #Enable VideoPlayer
-set(USE_WEB_VIEW         ON) #Enable WebView
+set(USE_WEB_VIEW        ON) #Enable WebView
 set(USE_AUDIO           ON) #Enable AudioEngine
 set(USE_SOCKET          ON) #Enable WebSocket & SocketIO
 set(USE_TIFF            ON) #Enable TIFF format support
@@ -29,7 +29,8 @@ set(USE_TIFF            ON) #Enable TIFF format support
 # set(USE_SE_SM           OFF)
 # set(USE_SE_JSC          OFF)
 
-set(USE_SE_SM           ON)
+#set(USE_SE_SM           ON)
+
 
 add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 
