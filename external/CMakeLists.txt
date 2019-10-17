@@ -1,6 +1,6 @@
 
 set(CC_EXTERNAL_LIBS)
-set(CC_EXTERNAL_INCLUDES)
+set(CC_EXTERNAL_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/sources)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/CocosExternalConfig.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/sources/CMakeLists.txt)

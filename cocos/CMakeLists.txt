@@ -196,7 +196,14 @@ elseif(ANDROID)
         )
     endif()
 elseif(MACOSX)
+    target_include_directories(${COCOSLIB} PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/mac/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/sources/
 
+    )
+    # target_link_options(${COCOSLIB} PUBLIC
+    #     -llibsql3
+    # )
 elseif(IOS)
 
 endif()

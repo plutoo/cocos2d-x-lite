@@ -48,12 +48,15 @@ elseif(ANDROID)
 elseif(APPLE)
     list(APPEND CC_NETWORK_SOURCES 
         network/CCDownloaderImpl-apple.mm
-        network/HttpAsynConnection-apple.mm
+        network/HttpAsynConnection-apple.m
         network/HttpClient-apple.mm
     )
     if(USE_SOCKET)
         list(APPEND CC_NETWORK_SOURCES
             network/WebSocket-apple.mm
+        )
+        set_source_files_properties(network/WebSocket-apple.mm PROPERTIES
+            COMPILE_FLAGS -fobjc-arc
         )
     endif()
 endif()

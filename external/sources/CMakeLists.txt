@@ -51,4 +51,24 @@ elseif(WINDOWS)
     LANGUAGE C
   )
 
+elseif(APPLE)
+  list(APPEND CC_EXTERNAL_SROUCES 
+    ${CMAKE_CURRENT_LIST_DIR}/ConvertUTF/ConvertUTF.c
+    ${CMAKE_CURRENT_LIST_DIR}/ConvertUTF/ConvertUTF.h
+    ${CMAKE_CURRENT_LIST_DIR}/ConvertUTF/ConvertUTFWrapper.cpp
+  )
+  if(USE_SOCKET)
+      include(${CMAKE_CURRENT_LIST_DIR}/SocketRocket/CMakeLists.txt)
+      #list(APPEND CC_EXTERNAL_SROUCES 
+      #  ${SOCKET_ROCKET_SOURCES}
+      #)
+      #list(APPEND CC_EXTERNAL_INCLUDES
+      #  ${CMAKE_CURRENT_LIST_DIR}/SocketRocket
+      #  ${CMAKE_CURRENT_LIST_DIR}/SocketRocket/Internal
+      #  ${CMAKE_CURRENT_LIST_DIR}/SocketRocket/Utilities
+      #)
+      list(APPEND CC_EXTERNAL_LIBS
+          SocketRocket
+      )
+  endif()
 endif()
