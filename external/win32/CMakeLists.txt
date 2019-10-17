@@ -138,26 +138,13 @@ set_target_properties(zlib PROPERTIES
   #IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/zlib1.dll
 )
 
-#add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/unzip native-engine/unzip)
+add_library(websockets SHARED IMPORTED GLOBAL)
 
-# add_library(mozglue STATIC IMPORTED GLOBAL)
+set_target_properties(websockets PROPERTIES
+  IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/websockets.dll
+  IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/websockets.lib
+)
 
-# set_target_properties(mozglue PROPERTIES
-#   IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/mozglue.lib
-# )
-
-# add_library(mozjs-52 SHARED IMPORTED GLOBAL)
-
-# set_target_properties(mozjs-52 PROPERTIES
-#   IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.dll
-#   IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.lib
-# )
-
-# add_library(nspr4 SHARED IMPORTED GLOBAL)
-
-# set_target_properties(nspr4 PROPERTIES
-#   IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/nspr4.dll
-# )
 
 add_library(OpenAL32 SHARED IMPORTED GLOBAL)
 
@@ -173,35 +160,67 @@ set_target_properties(sqlite3 PROPERTIES
   IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/sqlite3.lib
 )
 
-add_library(v8 SHARED IMPORTED GLOBAL)
+set(se_libs_name)
 
-set_target_properties(v8 PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/v8.dll
-  IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/v8.dll.lib
-)
+if(USE_SE_V8)
 
-add_library(v8_libbase SHARED IMPORTED GLOBAL)
+    add_library(v8 SHARED IMPORTED GLOBAL)
+    set_target_properties(v8 PROPERTIES
+      IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/v8.dll
+      IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/v8.dll.lib
+    )
 
-set_target_properties(v8_libbase PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libbase.dll
-  IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libbase.dll.lib
-)
+    add_library(v8_libbase SHARED IMPORTED GLOBAL)
+    set_target_properties(v8_libbase PROPERTIES
+      IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libbase.dll
+      IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libbase.dll.lib
+    )
 
-add_library(v8_libplatform SHARED IMPORTED GLOBAL)
+    add_library(v8_libplatform SHARED IMPORTED GLOBAL)
+    set_target_properties(v8_libplatform PROPERTIES
+      IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libplatform.dll
+      IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libplatform.dll.lib
+    )
 
-set_target_properties(v8_libplatform PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libplatform.dll
-  IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/v8_libplatform.dll.lib
-)
+    target_link_libraries(v8 INTERFACE v8_libbase v8_libplatform)
 
-target_link_libraries(v8 INTERFACE v8_libbase v8_libplatform)
+    set(se_libs_name v8)
+    
+    list(APPEND CC_EXTERNAL_INCLUDES 
+      ${CMAKE_CURRENT_LIST_DIR}/include/v8
+      ${CMAKE_CURRENT_LIST_DIR}/include/uv
+    )
+endif()
 
-add_library(websockets SHARED IMPORTED GLOBAL)
 
-set_target_properties(websockets PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/websockets.dll
-  IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/websockets.lib
-)
+if(USE_SE_SM)
+    add_library(mozglue STATIC IMPORTED GLOBAL)
+
+    set_target_properties(mozglue PROPERTIES
+      IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/mozglue.lib
+    )
+
+    add_library(mozjs SHARED IMPORTED GLOBAL)
+
+    set_target_properties(mozjs PROPERTIES
+      #IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozjs-52.dll
+      #IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozjs-52.lib
+      IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.dll
+      IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.lib
+    )
+
+    # add_library(nspr4 SHARED IMPORTED GLOBAL)
+    # set_target_properties(nspr4 PROPERTIES
+    #   IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/nspr4.dll
+    # )
+
+    set(se_libs_name mozglue mozjs)
+
+    list(APPEND CC_EXTERNAL_INCLUDES 
+      ${CMAKE_CURRENT_LIST_DIR}/include/spidermonkey
+    )
+
+endif()
 
 list(APPEND CC_EXTERNAL_LIBS
     freetype
@@ -223,6 +242,6 @@ list(APPEND CC_EXTERNAL_LIBS
     zlib
     OpenAL32
     sqlite3
-    v8
+    ${se_libs_name}
     websockets
 )

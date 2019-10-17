@@ -171,23 +171,20 @@ target_include_directories(${COCOSLIB} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/platform
     ${CMAKE_CURRENT_SOURCE_DIR}/editor-support
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/sources
+    ${CC_EXTERNAL_INCLUDES}
 )
 
 if(WINDOWS)
 
 target_include_directories(${COCOSLIB} PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/v8
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/zlib
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/uv
 )
 
 elseif(ANDROID)
     target_include_directories(${COCOSLIB} PUBLIC 
         ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include/v8
         ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include/zlib
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include/uv
     )
     if(ANDROID_NDK)
         target_include_directories(${COCOSLIB} PUBLIC 
@@ -220,6 +217,7 @@ target_compile_definitions(${COCOSLIB} PUBLIC
     $<$<NOT:$<BOOL:${USE_V8_DEBUGGER}>>:USE_V8_DEBUGGER=0>
 )
 
+
 if(NOT USE_SE_AUTO)
     set(ENGINE_ID 0)   
     if(USE_SE_SM) 
@@ -235,6 +233,12 @@ if(NOT USE_SE_AUTO)
         SCRIPT_ENGINE_TYPE=${ENGINE_ID}
     )
 endif()
+
+if(USE_SE_V8) 
+
+
+endif()
+
 
 cocos_mark_code_files(${COCOSLIB})
 

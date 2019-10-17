@@ -3,24 +3,6 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/event/CustomEventTypes.h
     scripting/js-bindings/event/EventDispatcher.h
     scripting/js-bindings/jswrapper/SeApi.h
-    scripting/js-bindings/jswrapper/v8/Base.h
-    scripting/js-bindings/jswrapper/v8/debugger/base64.h
-    scripting/js-bindings/jswrapper/v8/debugger/env.h
-    scripting/js-bindings/jswrapper/v8/debugger/http_parser.h
-    scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.h
-    scripting/js-bindings/jswrapper/v8/debugger/inspector_io.h
-    scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.h
-    scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.h
-    scripting/js-bindings/jswrapper/v8/debugger/node.h
-    scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.h
-    scripting/js-bindings/jswrapper/v8/debugger/node_mutex.h
-    scripting/js-bindings/jswrapper/v8/debugger/SHA1.h
-    scripting/js-bindings/jswrapper/v8/debugger/util-inl.h
-    scripting/js-bindings/jswrapper/v8/debugger/util.h
-    scripting/js-bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
-    scripting/js-bindings/jswrapper/v8/HelperMacros.h
-    scripting/js-bindings/jswrapper/v8/ObjectWrap.h
-    scripting/js-bindings/jswrapper/v8/SeApi.h
     scripting/js-bindings/manual/JavaScriptObjCBridge.h
     scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
     scripting/js-bindings/manual/jsb_global.h
@@ -39,12 +21,7 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/jswrapper/MappingUtils.cpp
     scripting/js-bindings/jswrapper/RefCounter.cpp
     scripting/js-bindings/jswrapper/State.cpp
-    scripting/js-bindings/jswrapper/v8/Class.cpp
-    scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp
-    scripting/js-bindings/jswrapper/v8/Object.cpp
-    scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp
-    scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp
-    scripting/js-bindings/jswrapper/v8/Utils.cpp
+ 
     scripting/js-bindings/jswrapper/Value.cpp
     scripting/js-bindings/manual/jsb_classtype.cpp
     #scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.cpp
@@ -64,8 +41,75 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
 )
 
-if(USE_V8_DEBUGGER)
+if(USE_SE_V8) 
     list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/jswrapper/v8/Base.h
+        scripting/js-bindings/jswrapper/v8/HelperMacros.h
+        scripting/js-bindings/jswrapper/v8/ObjectWrap.h
+        scripting/js-bindings/jswrapper/v8/SeApi.h
+        scripting/js-bindings/jswrapper/v8/Class.cpp
+        scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp
+        scripting/js-bindings/jswrapper/v8/Object.cpp
+        scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp
+        scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp
+        scripting/js-bindings/jswrapper/v8/Utils.cpp
+    )
+endif()
+
+if(USE_SE_SM)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/jswrapper/sm/Base.h
+        scripting/js-bindings/jswrapper/sm/Class.cpp
+        scripting/js-bindings/jswrapper/sm/Class.hpp
+        scripting/js-bindings/jswrapper/sm/HelperMacros.h
+        scripting/js-bindings/jswrapper/sm/Object.cpp
+        scripting/js-bindings/jswrapper/sm/Object.hpp
+        scripting/js-bindings/jswrapper/sm/ScriptEngine.cpp
+        scripting/js-bindings/jswrapper/sm/ScriptEngine.hpp
+        scripting/js-bindings/jswrapper/sm/SeApi.h
+        scripting/js-bindings/jswrapper/sm/Utils.cpp
+        scripting/js-bindings/jswrapper/sm/Utils.hpp
+    )
+endif()
+
+if(USE_SE_JSC)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/jswrapper/jsc/Base.h
+        scripting/js-bindings/jswrapper/jsc/Class.cpp
+        scripting/js-bindings/jswrapper/jsc/Class.hpp
+        scripting/js-bindings/jswrapper/jsc/EJConvert.h
+        scripting/js-bindings/jswrapper/jsc/EJConvert.m
+        scripting/js-bindings/jswrapper/jsc/EJConvertTypedArray.h
+        scripting/js-bindings/jswrapper/jsc/EJConvertTypedArray.m
+        scripting/js-bindings/jswrapper/jsc/HelperMacros.h
+        scripting/js-bindings/jswrapper/jsc/Object.hpp
+        scripting/js-bindings/jswrapper/jsc/Object.mm
+        scripting/js-bindings/jswrapper/jsc/PlatformUtils.h
+        scripting/js-bindings/jswrapper/jsc/PlatformUtils.mm
+        scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp
+        scripting/js-bindings/jswrapper/jsc/ScriptEngine.mm
+        scripting/js-bindings/jswrapper/jsc/SeApi.h
+        scripting/js-bindings/jswrapper/jsc/Utils.cpp
+        scripting/js-bindings/jswrapper/jsc/Utils.hpp
+    )
+endif()
+
+if(USE_SE_V8 AND USE_V8_DEBUGGER)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/jswrapper/v8/debugger/base64.h
+        scripting/js-bindings/jswrapper/v8/debugger/env.h
+        scripting/js-bindings/jswrapper/v8/debugger/http_parser.h
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.h
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_io.h
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.h
+        scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.h
+        scripting/js-bindings/jswrapper/v8/debugger/node.h
+        scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.h
+        scripting/js-bindings/jswrapper/v8/debugger/node_mutex.h
+        scripting/js-bindings/jswrapper/v8/debugger/SHA1.h
+        scripting/js-bindings/jswrapper/v8/debugger/util-inl.h
+        scripting/js-bindings/jswrapper/v8/debugger/util.h
+        scripting/js-bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
         scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp 
         scripting/js-bindings/jswrapper/v8/debugger/util.cc 
         scripting/js-bindings/jswrapper/v8/debugger/env.cc 
