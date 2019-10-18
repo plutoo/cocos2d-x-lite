@@ -7,6 +7,41 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
     scripting/js-bindings/manual/jsb_global.h
     scripting/js-bindings/manual/jsb_platform.h
+    scripting/js-bindings/jswrapper/config.hpp
+    scripting/js-bindings/jswrapper/Value.hpp
+    scripting/js-bindings/jswrapper/Object.hpp
+    scripting/js-bindings/jswrapper/HandleObject.hpp
+    scripting/js-bindings/jswrapper/State.hpp
+    scripting/js-bindings/jswrapper/MappingUtils.hpp
+
+    scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp
+    scripting/js-bindings/auto/jsb_video_auto.hpp
+    scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp
+    scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp
+    scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp
+    scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.hpp
+    scripting/js-bindings/auto/jsb_gfx_auto.hpp
+    scripting/js-bindings/auto/jsb_webview_auto.hpp
+    scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp
+    scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp
+    scripting/js-bindings/auto/jsb_renderer_auto.hpp
+
+    scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp
+    scripting/js-bindings/manual/jsb_websocket.hpp
+    scripting/js-bindings/manual/jsb_spine_manual.hpp
+    scripting/js-bindings/manual/jsb_helper.hpp
+    scripting/js-bindings/manual/jsb_renderer_manual.hpp
+    scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp
+    scripting/js-bindings/manual/jsb_xmlhttprequest.hpp
+    scripting/js-bindings/manual/jsb_gfx_manual.hpp
+    scripting/js-bindings/manual/jsb_opengl_manual.hpp
+    scripting/js-bindings/manual/jsb_classtype.hpp
+    scripting/js-bindings/manual/jsb_module_register.hpp
+    scripting/js-bindings/manual/jsb_conversions.hpp
+    scripting/js-bindings/manual/jsb_socketio.hpp
+    scripting/js-bindings/manual/jsb_opengl_utils.hpp
+    scripting/js-bindings/manual/jsb_node.hpp
+    scripting/js-bindings/manual/jsb_dragonbones_manual.hpp
 
     scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp
     scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.cpp
@@ -21,7 +56,7 @@ set(CC_SCRIPTING_SOURCES
     scripting/js-bindings/jswrapper/MappingUtils.cpp
     scripting/js-bindings/jswrapper/RefCounter.cpp
     scripting/js-bindings/jswrapper/State.cpp
- 
+
     scripting/js-bindings/jswrapper/Value.cpp
     scripting/js-bindings/manual/jsb_classtype.cpp
     #scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.cpp
@@ -184,10 +219,11 @@ if(ANDROID)
     )
 elseif(WINDOWS)
 
-elseif(MACOSX)
-
-elseif(IOS)
-
+elseif(APPLE)
+    list(APPEND CC_SCRIPTING_SOURCES
+        scripting/js-bindings/manual/JavaScriptObjCBridge.h
+        scripting/js-bindings/manual/JavaScriptObjCBridge.mm
+    )
 endif()
 
 

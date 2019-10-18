@@ -199,8 +199,10 @@ elseif(MACOSX)
     target_include_directories(${COCOSLIB} PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/../external/mac/include
         ${CMAKE_CURRENT_SOURCE_DIR}/../external/sources/
-
+        ##TODO mac depends ios ?
+        ${CMAKE_CURRENT_SOURCE_DIR}/platform/ios
     )
+    
     # target_link_options(${COCOSLIB} PUBLIC
     #     -llibsql3
     # )
@@ -225,20 +227,22 @@ target_compile_definitions(${COCOSLIB} PUBLIC
 )
 
 
-if(NOT USE_SE_AUTO)
-    set(ENGINE_ID 0)   
+if(NOT USE_SE_AUTO)   
     if(USE_SE_SM) 
-        set(ENGINE_ID 1)
+        target_compile_definitions(${COCOSLIB} PUBLIC
+            SCRIPT_ENGINE_TYPE=1
+        )
     endif()
     if(USE_SE_V8) 
-        set(ENGINE_ID 2)
+        target_compile_definitions(${COCOSLIB} PUBLIC
+            SCRIPT_ENGINE_TYPE=2
+        )
     endif()
     if(USE_SE_JSC) 
-        set(ENGINE_ID 3)
+        target_compile_definitions(${COCOSLIB} PUBLIC
+            SCRIPT_ENGINE_TYPE=3
+        )
     endif()
-    target_compile_definitions(${COCOSLIB} PUBLIC
-        SCRIPT_ENGINE_TYPE=${ENGINE_ID}
-    )
 endif()
 
 if(USE_SE_V8) 

@@ -64,9 +64,10 @@ function(cocos_mark_multi_resources res_out)
     list(APPEND tmp_file_list ${opt_FILES})
 
     foreach(cc_folder ${opt_FOLDERS})
+        get_filename_component(dir_name ${cc_folder} NAME)
         file(GLOB_RECURSE folder_files "${cc_folder}/*")
         list(APPEND tmp_file_list ${folder_files})
-        cocos_mark_resources(FILES ${folder_files} BASEDIR ${cc_folder} RESOURCEBASE ${opt_RES_TO})
+        cocos_mark_resources(FILES ${folder_files} BASEDIR ${cc_folder} RESOURCEBASE ${opt_RES_TO}/${dir_name})
     endforeach()
     set(${res_out} ${tmp_file_list} PARENT_SCOPE)
 endfunction()
@@ -148,6 +149,8 @@ function(cocos_mark_resources)
     set(multiValueArgs FILES)
     cmake_parse_arguments(opt "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
+    #message(STATUS "cocos_mark_resources: ${ARGN}\n")
+
     if(NOT opt_RESOURCEBASE)
         set(opt_RESOURCEBASE Resources)
     endif()
@@ -158,13 +161,12 @@ function(cocos_mark_resources)
         file(RELATIVE_PATH RES ${BASEDIR_ABS} ${RES_FILE_ABS})
         get_filename_component(RES_LOC ${RES} PATH)
         set_source_files_properties(${RES_FILE} PROPERTIES
-                                    MACOSX_PACKAGE_LOCATION "${opt_RESOURCEBASE}/${RES_LOC}"
+                                    MACOSX_PACKAGE_LOCATION ${opt_RESOURCEBASE}/${RES_LOC}
                                     HEADER_FILE_ONLY 1
                                     )
-
         if(XCODE OR VS)
             string(REPLACE "/" "\\" ide_source_group "${opt_RESOURCEBASE}/${RES_LOC}")
-            source_group("${ide_source_group}" FILES ${RES_FILE})
+            source_group("${ide_source_group}" FILES ${RES_FILE_ABS})
         endif()
     endforeach()
 endfunction()

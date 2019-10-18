@@ -37,10 +37,42 @@ if(WINDOWS)
         platform/win32/CCUtils-win32.cpp
         platform/win32/inet_pton_mingw.cpp
     )
-elseif(MACOSX)
 
+elseif(APPLE)
 
-elseif(IOS)
+    list(APPEND CC_PLATFORM_SOURCES
+        platform/apple/CCFileUtils-apple.h
+        platform/apple/CCDevice-apple.mm
+        platform/apple/CCFileUtils-apple.mm
+        platform/apple/CCCanvasRenderingContext2D-apple.mm
+        platform/apple/CCDevice-apple.h
+    )
+
+    if(MACOSX) 
+
+        list(APPEND CC_PLATFORM_SOURCES
+            platform/mac/cocos2d-prefix.pch
+            platform/mac/CCPlatformDefine-mac.h
+            platform/mac/CCDevice-mac.mm
+            platform/mac/CCApplication-mac.mm
+            platform/mac/CCGL-mac.h
+            platform/desktop/CCGLView-desktop.cpp
+
+            platform/ios/CCReachability.cpp
+        )
+
+        if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+            list(APPEND CC_PLATFORM_SOURCES
+                platform/mac/CCModuleConfigMac.debug.xcconfig
+            )
+        elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+            list(APPEND CC_PLATFORM_SOURCES
+                platform/mac/CCModuleConfigMac.release.xcconfig
+            )
+        endif()
+    elseif(IOS)
+
+    endif()
 
 elseif(ANDROID)
 list(APPEND CC_PLATFORM_SOURCES

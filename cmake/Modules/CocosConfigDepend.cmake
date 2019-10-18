@@ -15,6 +15,9 @@ macro(cocos2dx_depend)
         find_library(OPENAL_LIBRARY OpenAL)
         find_library(QUARTZCORE_LIBRARY QuartzCore)
         find_library(GAMECONTROLLER_LIBRARY GameController)
+        find_library(SQLITE3_LIBRARY SQLite3)
+        find_library(SECURITY_LIBRARY Security)
+        find_library(SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration REQUIRED)
         set(COCOS_APPLE_LIBS
             ${OPENAL_LIBRARY}
             ${AUDIOTOOLBOX_LIBRARY}
@@ -22,13 +25,11 @@ macro(cocos2dx_depend)
             ${FOUNDATION_LIBRARY}
             ${ICONV_LIBRARY}
             ${GAMECONTROLLER_LIBRARY}
+            ${SQLITE3_LIBRARY}
+            ${SECURITY_LIBRARY}
+            ${SYSTEM_CONFIGURATION_LIBRARY}
             )
 
-        if(BUILD_JS_LIBS)
-            find_library(SQLITE3_LIBRARY SQLite3)
-            list(APPEND COCOS_APPLE_LIBS ${SQLITE3_LIBRARY})
-        endif()
-            
         if(MACOSX)
             list(APPEND PREBUILT_SPECIFIC_LIBS GLFW3)
 
@@ -53,7 +54,6 @@ macro(cocos2dx_depend)
             find_library(AVKIT_LIBRARY AVKit)
             find_library(CORE_MEDIA_LIBRARY CoreMedia)
             find_library(CORE_TEXT_LIBRARY CoreText)
-            find_library(SECURITY_LIBRARY Security)
             find_library(CORE_GRAPHICS_LIBRARY CoreGraphics)
             find_library(AV_FOUNDATION_LIBRARY AVFoundation)
             find_library(Z_LIBRARY z)
@@ -65,7 +65,6 @@ macro(cocos2dx_depend)
                  ${AVKIT_LIBRARY}
                  ${CORE_MEDIA_LIBRARY}
                  ${CORE_TEXT_LIBRARY}
-                 ${SECURITY_LIBRARY}
                  ${CORE_GRAPHICS_LIBRARY}
                  ${AV_FOUNDATION_LIBRARY}
                  ${Z_LIBRARY}

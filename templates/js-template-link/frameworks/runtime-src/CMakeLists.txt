@@ -4,7 +4,8 @@ set(APP_NAME ExampleCollection)
 
 
 #set(COCOS2DX_LITE_ROOT ${COCOS_X_ROOT})
-set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
+#set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
+set(COCOS2DX_LITE_ROOT /Users/cocos/Github/cocos2d-x-lite)
 set(CMAKE_MODULE_PATH ${COCOS2DX_LITE_ROOT}/cmake/Modules)
 
 project(${APP_NAME} CXX)
@@ -19,7 +20,7 @@ set(USE_DRAGONBONES     ON) #Enable DragonBonesAPI
 set(USE_V8_DEBUGGER     ON) #Enable V8 Inspector
 set(USE_GFX_RENDERER    OFF)#Enable GFX Renderer
 set(USE_VIDEO           ON) #Enable VideoPlayer
-set(USE_WEB_VIEW        ON) #Enable WebView
+set(USE_WEB_VIEW         ON) #Enable WebView
 set(USE_AUDIO           ON) #Enable AudioEngine
 set(USE_SOCKET          ON) #Enable WebSocket & SocketIO
 set(USE_TIFF            ON) #Enable TIFF format support
@@ -29,8 +30,7 @@ set(USE_TIFF            ON) #Enable TIFF format support
 # set(USE_SE_SM           OFF)
 # set(USE_SE_JSC          OFF)
 
-#set(USE_SE_SM           ON)
-
+set(USE_SE_JSC           ON)
 
 add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 
@@ -54,19 +54,25 @@ set(GAME_HEADERS
 
 set(GAME_RES_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../)
 
+set(GAME_RES_FILES
+    ${GAME_RES_ROOT}/main.js
+    ${GAME_RES_ROOT}/project.json
+)
+
 set(GAME_RES_FOLDERS 
     ${GAME_RES_ROOT}/jsb-adapter
     ${GAME_RES_ROOT}/subpackages
     ${GAME_RES_ROOT}/res
     ${GAME_RES_ROOT}/src
-    ${GAME_RES_ROOT}/main.js
-    ${GAME_RES_ROOT}/project.json
+)
+set(GAME_RES_ALL
+    ${GAME_RES_FILES}
+    ${GAME_RES_FOLDERS}
 )
 
 if(APPLE OR VS)
-    cocos_mark_multi_resources(cc_common_res RES_TO "Resources" FOLDERS ${GAME_RES_FOLDERS})
+    cocos_mark_multi_resources(cc_common_res RES_TO "Resources" FILES ${GAME_RES_FILES} FOLDERS ${GAME_RES_FOLDERS})
 endif()
-
 
 if(WINDOWS)
     list(APPEND GAME_SOURCES
@@ -82,12 +88,37 @@ elseif(ANDROID)
     list(APPEND GAME_SOURCES
         proj.android-studio/app/jni/hellojavascript/main.cpp
     )
+elseif(MACOSX)
+    list(APPEND GAME_SOURCES
+        proj.ios_mac/mac/Icon.icns
+        proj.ios_mac/mac/Prefix.pch
+        proj.ios_mac/mac/main.cpp
+    )
+
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        list(APPEND GAME_SOURCES
+            proj.ios_mac/mac/UserConfigMac.debug.xcconfig
+        )
+    elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+        list(APPEND GAME_SOURCES
+            proj.ios_mac/mac/UserConfigMac.release.xcconfig
+        )
+    endif()
+    list(APPEND GAME_SOURCES 
+        ${cc_common_res}
+    )
+elseif(IOS)
+    list(APPEND GAME_SOURCES 
+            ${cc_common_res}
+        )
 endif()
 
 set(ALL_SOURCE_CODE 
     ${GAME_SOURCES}
     ${GAME_HEADERS}
 )
+
+
 
 if(NOT ANDROID)
     add_executable(${LIB_NAME} ${ALL_SOURCE_CODE})
@@ -109,11 +140,12 @@ setup_cocos_app_config(${LIB_NAME})
 
 
 if(APPLE)
+
     set_target_properties(${LIB_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
     if(MACOSX)
         set_target_properties(${LIB_NAME} PROPERTIES
-                              MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.mac/Info.plist"
-                              )
+                              MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/mac/Info.plist"
+                              )  
     elseif(IOS)
         cocos_pak_xcode(${LIB_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
         set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon-${LIB_NAME}")
@@ -135,7 +167,7 @@ endif()
 
 if(WINDOWS)
     set(APP_RES_DIR "$<TARGET_FILE_DIR:${LIB_NAME}>")
-    cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_FOLDERS})
+    cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_ALL})
 endif()
 
 # if(WINDOWS)

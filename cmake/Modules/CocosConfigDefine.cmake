@@ -86,8 +86,12 @@ endif()
  function(use_cocos2dx_compile_define target)
     #target_compile_definitions(${target} PUBLIC $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>)
     if(APPLE)
-        target_compile_definitions(${target} PUBLIC __APPLE__)
-        target_compile_definitions(${target} PUBLIC USE_FILE32API)
+        target_compile_definitions(${target} PUBLIC
+            __APPLE__
+            USE_FILE32API
+            CC_KEYBOARD_SUPPORT
+            CC_NEW_RENDERER
+        )
     elseif(LINUX)
         target_compile_definitions(${target} PUBLIC LINUX)
         target_compile_definitions(${target} PUBLIC _GNU_SOURCE)

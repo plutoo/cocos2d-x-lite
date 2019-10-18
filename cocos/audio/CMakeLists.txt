@@ -48,8 +48,17 @@ elseif(ANDROID)
         audio/android/mp3reader.cpp
         audio/android/tinysndfile.cpp
     )
-elseif(MACOSX)
-
-elseif(IOS)
-
+elseif(APPLE)
+    set(CC_AUDIO_SOURCES
+        audio/AudioEngine.cpp
+        audio/apple/AudioDecoder.h
+        audio/apple/AudioPlayer.mm
+        audio/apple/AudioDecoder.mm
+        audio/apple/AudioPlayer.h
+        audio/apple/AudioEngine-inl.mm
+        audio/apple/AudioMacros.h
+        audio/apple/AudioCache.mm
+        audio/apple/AudioCache.h
+        audio/apple/AudioEngine-inl.h
+    )
 endif()

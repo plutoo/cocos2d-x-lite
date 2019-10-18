@@ -108,7 +108,8 @@ if(USE_SE_SM)
 endif()
 
 if(USE_SE_JSC)
-    set(se_libs_name JavaScriptCore)
+    find_library(JAVASCRIPT_CORE_LIBRARY JavaScriptCore REQUIRED)
+    set(se_libs_name ${JAVASCRIPT_CORE_LIBRARY})
 endif()
 
 # if(USE_SOCKETS)
@@ -128,7 +129,6 @@ list(APPEND CC_EXTERNAL_LIBS
     glfw3
     jpeg
     png
-    uv
     webp
     curl
     ${se_libs_name}

@@ -34,6 +34,9 @@
 
 #ifndef SCRIPT_ENGINE_TYPE
 
+#error "ENGINE SHOULD BE DEFINED"
+
+
 #if defined(__APPLE__)
     #include <TargetConditionals.h>
     #if TARGET_OS_OSX
