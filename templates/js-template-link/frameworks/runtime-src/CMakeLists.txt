@@ -4,8 +4,8 @@ set(APP_NAME ExampleCollection)
 
 
 #set(COCOS2DX_LITE_ROOT ${COCOS_X_ROOT})
-#set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
-set(COCOS2DX_LITE_ROOT /Users/cocos/Github/cocos2d-x-lite)
+set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
+#set(COCOS2DX_LITE_ROOT /Users/cocos/Github/cocos2d-x-lite)
 set(CMAKE_MODULE_PATH ${COCOS2DX_LITE_ROOT}/cmake/Modules)
 
 project(${APP_NAME} CXX)
@@ -30,7 +30,7 @@ set(USE_TIFF            ON) #Enable TIFF format support
 # set(USE_SE_SM           OFF)
 # set(USE_SE_JSC          OFF)
 
-set(USE_SE_JSC           ON)
+set(USE_SE_V8           ON)
 
 add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 
@@ -168,6 +168,10 @@ endif()
 if(WINDOWS)
     set(APP_RES_DIR "$<TARGET_FILE_DIR:${LIB_NAME}>")
     cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_ALL})
+    # target_compile_definitions(${LIB_NAME} PUBLIC
+    #     _HAS_ITERATOR_DEBUGGING=0
+    #     _ITERATOR_DEBUG_LEVEL=0
+    # )
 endif()
 
 # if(WINDOWS)

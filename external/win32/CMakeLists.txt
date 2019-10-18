@@ -198,15 +198,16 @@ if(USE_SE_SM)
 
     set_target_properties(mozglue PROPERTIES
       IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/mozglue.lib
+      # IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozglue.lib
     )
 
     add_library(mozjs SHARED IMPORTED GLOBAL)
 
     set_target_properties(mozjs PROPERTIES
-      #IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozjs-52.dll
-      #IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozjs-52.lib
-      IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.dll
-      IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.lib
+      IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozjs-52.dll
+      IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozjs-52.lib
+      #IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.dll
+      #IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.lib
     )
 
     # add_library(nspr4 SHARED IMPORTED GLOBAL)
@@ -239,9 +240,9 @@ list(APPEND CC_EXTERNAL_LIBS
     vorbis
     vorbisfile
     webp
-    zlib
     OpenAL32
     sqlite3
     ${se_libs_name}
+    zlib
     websockets
 )

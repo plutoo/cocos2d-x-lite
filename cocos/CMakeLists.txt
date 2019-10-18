@@ -232,6 +232,12 @@ if(NOT USE_SE_AUTO)
         target_compile_definitions(${COCOSLIB} PUBLIC
             SCRIPT_ENGINE_TYPE=1
         )
+        # if(WINDOWS)
+        #     target_compile_definitions(${COCOSLIB} PUBLIC
+        #         _HAS_ITERATOR_DEBUGGING=0
+        #         _ITERATOR_DEBUG_LEVEL=0
+        #     )
+        # endif()
     endif()
     if(USE_SE_V8) 
         target_compile_definitions(${COCOSLIB} PUBLIC
