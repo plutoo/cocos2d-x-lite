@@ -109,8 +109,29 @@ elseif(MACOSX)
     )
 elseif(IOS)
     list(APPEND GAME_SOURCES 
+            proj.ios_mac/ios/main.m
+            proj.ios_mac/ios/RootViewController.mm
+            proj.ios_mac/ios/AppController.h
+            proj.ios_mac/ios/SDKWrapper.h
+            proj.ios_mac/ios/SDKWrapper.m
+            proj.ios_mac/ios/RootViewController.h
+            proj.ios_mac/ios/AppController.mm
+            proj.ios_mac/ios/service/SDKDelegate.h
             ${cc_common_res}
+            proj.ios_mac/ios/Base.lproj
+            proj.ios_mac/ios/LaunchScreenBackground.png
+            proj.ios_mac/ios/zh-Hans.lproj
         )
+
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        list(APPEND GAME_SOURCES
+            proj.ios_mac/ios/UserConfigIOS.debug.xcconfig
+        )
+    elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+        list(APPEND GAME_SOURCES
+            proj.ios_mac/ios/UserConfigIOS.release.xcconfig
+        )
+    endif()
 endif()
 
 set(ALL_SOURCE_CODE 
@@ -147,6 +168,10 @@ if(APPLE)
                               MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/mac/Info.plist"
                               )  
     elseif(IOS)
+        target_include_directories(${LIB_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/ios)
+        set_target_properties(${LIB_NAME} PROPERTIES
+                              MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/mac/Info.plist"
+                              )  
         cocos_pak_xcode(${LIB_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
         set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon-${LIB_NAME}")
         set_xcode_property(${LIB_NAME} DEVELOPMENT_TEAM "")

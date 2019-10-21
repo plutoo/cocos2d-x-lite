@@ -71,7 +71,29 @@ elseif(APPLE)
             )
         endif()
     elseif(IOS)
+        list(APPEND CC_PLATFORM_SOURCES
+            platform/ios/CCGL-ios.h
+            platform/ios/CCReachability.h
+            platform/ios/CCApplication-ios.mm
+            platform/ios/cocos2d-prefix.pch
+            platform/ios/CCEAGLView-ios.mm
+            platform/ios/OpenGL_Internal-ios.h
+            platform/ios/CCDevice-ios.mm
+            platform/ios/CCReachability.cpp
+            platform/ios/CCPlatformDefine-ios.h
+            platform/ios/CCEAGLView-ios.h
+            platform/ios/CCImage-ios.mm
+        )
 
+        if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+            list(APPEND CC_PLATFORM_SOURCES
+                platform/ios/CCModuleConfigIOS.debug.xcconfig
+            )
+        elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+            list(APPEND CC_PLATFORM_SOURCES
+                platform/ios/CCModuleConfigIOS.release.xcconfig
+            )
+        endif()
     endif()
 
 elseif(ANDROID)

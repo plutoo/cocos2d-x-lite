@@ -213,6 +213,7 @@ function(setup_cocos_app_config app_name)
     if(APPLE)
         # output macOS/iOS .app
         set_target_properties(${app_name} PROPERTIES MACOSX_BUNDLE 1)
+        #use_cocos2dx_libs_depend(${app_name})
     elseif(MSVC)
         # visual studio default is Console app, but we need Windows app
         set_property(TARGET ${app_name} APPEND PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")
@@ -221,6 +222,7 @@ function(setup_cocos_app_config app_name)
     if(XCODE OR VS)
         cocos_mark_code_files(${app_name})
     endif()
+    
 endfunction()
 
 # if cc_variable not set, then set it cc_value
@@ -278,6 +280,7 @@ endmacro()
 macro(cocos_config_app_xcode_property cocos_app)
     set(depend_libs)
     search_depend_libs_recursive(${cocos_app} depend_libs)
+    message(STATUS "dep libs ${depend_libs}")
     foreach(depend_lib ${depend_libs})
         if(TARGET ${depend_lib})
             cocos_config_target_xcode_property(${depend_lib})

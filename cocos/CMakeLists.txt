@@ -176,10 +176,10 @@ target_include_directories(${COCOSLIB} PUBLIC
 
 if(WINDOWS)
 
-target_include_directories(${COCOSLIB} PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/zlib
-)
+    target_include_directories(${COCOSLIB} PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/zlib
+    )
 
 elseif(ANDROID)
     target_include_directories(${COCOSLIB} PUBLIC 

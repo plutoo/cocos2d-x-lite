@@ -18,6 +18,7 @@ macro(cocos2dx_depend)
         find_library(SQLITE3_LIBRARY SQLite3)
         find_library(SECURITY_LIBRARY Security)
         find_library(SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration REQUIRED)
+        find_library(IOKIT_LIBRARY IOKit REQUIRED)
         set(COCOS_APPLE_LIBS
             ${OPENAL_LIBRARY}
             ${AUDIOTOOLBOX_LIBRARY}
@@ -28,6 +29,7 @@ macro(cocos2dx_depend)
             ${SQLITE3_LIBRARY}
             ${SECURITY_LIBRARY}
             ${SYSTEM_CONFIGURATION_LIBRARY}
+            ${IOKIT_LIBRARY}
             )
 
         if(MACOSX)
@@ -36,19 +38,17 @@ macro(cocos2dx_depend)
             find_library(COCOA_LIBRARY Cocoa)
             find_library(OPENGL_LIBRARY OpenGL)
             find_library(APPLICATIONSERVICES_LIBRARY ApplicationServices)
-            find_library(IOKIT_LIBRARY IOKit)
             find_library(APPKIT_LIBRARY AppKit)
             list(APPEND PLATFORM_SPECIFIC_LIBS
                  ${COCOA_LIBRARY}
                  ${OPENGL_LIBRARY}
                  ${APPLICATIONSERVICES_LIBRARY}
-                 ${IOKIT_LIBRARY}
                  ${COCOS_APPLE_LIBS}
                  ${APPKIT_LIBRARY}
                  )
         elseif(IOS)
             # Locate system libraries on iOS
-            find_library(UIKIT_LIBRARY UIKit)
+            find_library(UIKIT_LIBRARY UIKit REQUIRED)
             find_library(OPENGLES_LIBRARY OpenGLES)
             find_library(CORE_MOTION_LIBRARY CoreMotion)
             find_library(AVKIT_LIBRARY AVKit)
@@ -58,6 +58,9 @@ macro(cocos2dx_depend)
             find_library(AV_FOUNDATION_LIBRARY AVFoundation)
             find_library(Z_LIBRARY z)
             find_library(WEBKIT_LIBRARY WebKit)
+            find_library(CFNETWORK_LIBRARY CFNetwork REQUIRED)
+
+
             list(APPEND PLATFORM_SPECIFIC_LIBS
                  ${UIKIT_LIBRARY}
                  ${OPENGLES_LIBRARY}
@@ -70,6 +73,7 @@ macro(cocos2dx_depend)
                  ${Z_LIBRARY}
                  ${WEBKIT_LIBRARY}
                  ${COCOS_APPLE_LIBS}
+                 ${CFNETWORK_LIBRARY}
                  )
         endif()
     endif()
@@ -79,6 +83,7 @@ macro(use_cocos2dx_libs_depend target)
     cocos2dx_depend()
     foreach(platform_lib ${PLATFORM_SPECIFIC_LIBS})
         target_link_libraries(${target} ${platform_lib})
+        message(STATUS "SEARCH FOR LIBRARIES ${target} <- ${platform_lib}")
     endforeach()
 endmacro()
 

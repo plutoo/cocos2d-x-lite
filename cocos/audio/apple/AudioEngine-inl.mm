@@ -32,6 +32,8 @@
 
 #import <OpenAL/alc.h>
 #import <AVFoundation/AVFoundation.h>
+#import <UIKit/UIKit.h>
+#import <UIKit/UIDevice.h>
 
 #include "audio/include/AudioEngine.h"
 #include "platform/CCFileUtils.h"
