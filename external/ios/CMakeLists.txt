@@ -66,9 +66,9 @@ if(USE_SE_V8)
         v8_monolith
         uv
         )
-    if(USE_V8_DEBUGGER)
-        list(APPEND se_libs_name inspector)
-    endif()
+#    if(USE_V8_DEBUGGER)
+#        list(APPEND se_libs_name)
+#    endif()
     list(APPEND CC_EXTERNAL_INCLUDES 
         ${CMAKE_CURRENT_LIST_DIR}/include/v8
         ${CMAKE_CURRENT_LIST_DIR}/include/uv

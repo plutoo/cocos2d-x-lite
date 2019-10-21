@@ -28,6 +28,7 @@
  elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(APPLE TRUE)
     set(IOS TRUE)
+    set(XCODE TRUE)
     set(PLATFORM_FOLDER ios)
  else()
      message(FATAL_ERROR "Unsupported platform, CMake will exit")

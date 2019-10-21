@@ -4,8 +4,8 @@ set(APP_NAME ExampleCollection)
 
 
 #set(COCOS2DX_LITE_ROOT ${COCOS_X_ROOT})
-set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
-#set(COCOS2DX_LITE_ROOT /Users/cocos/Github/cocos2d-x-lite)
+#set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
+set(COCOS2DX_LITE_ROOT /Users/cocos/Github/cocos2d-x-lite)
 set(CMAKE_MODULE_PATH ${COCOS2DX_LITE_ROOT}/cmake/Modules)
 
 project(${APP_NAME} CXX)
@@ -30,7 +30,7 @@ set(USE_TIFF            ON) #Enable TIFF format support
 # set(USE_SE_SM           OFF)
 # set(USE_SE_JSC          OFF)
 
-set(USE_SE_V8           ON)
+set(USE_SE_SM          ON)
 
 add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 
@@ -93,21 +93,25 @@ elseif(MACOSX)
         proj.ios_mac/mac/Icon.icns
         proj.ios_mac/mac/Prefix.pch
         proj.ios_mac/mac/main.cpp
+        proj.ios_mac/mac/UserConfigMac.debug.xcconfig
+        proj.ios_mac/mac/UserConfigMac.release.xcconfig
     )
 
-    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-        list(APPEND GAME_SOURCES
-            proj.ios_mac/mac/UserConfigMac.debug.xcconfig
-        )
-    elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-        list(APPEND GAME_SOURCES
-            proj.ios_mac/mac/UserConfigMac.release.xcconfig
-        )
-    endif()
     list(APPEND GAME_SOURCES 
         ${cc_common_res}
     )
 elseif(IOS)
+    # file(GLOB_RECURSE GAME_SOURCES_IOS
+    #     proj.ios_mac/ios/*
+    # )
+    # # foreach(item ${GAME_SOURCES_IOS})
+    # #     #file(RELATIVE_PATH res proj.ios_mac/ios ${item})
+    # #     # set_source_files_properties(${item} PROPERTIES
+    # #     #     MACOSX_PACKAGE_LOCATION ios
+    # #     # )
+    # # endforeach(item ${GAME_SOURCES_IOS})
+    
+    # # list(APPEND GAME_SOURCES ${GAME_SOURCES_IOS})
     list(APPEND GAME_SOURCES 
             proj.ios_mac/ios/main.m
             proj.ios_mac/ios/RootViewController.mm
@@ -118,20 +122,20 @@ elseif(IOS)
             proj.ios_mac/ios/AppController.mm
             proj.ios_mac/ios/service/SDKDelegate.h
             ${cc_common_res}
-            proj.ios_mac/ios/Base.lproj
-            proj.ios_mac/ios/LaunchScreenBackground.png
-            proj.ios_mac/ios/zh-Hans.lproj
+        #    proj.ios_mac/ios/Base.lproj
+        #    proj.ios_mac/ios/LaunchScreenBackground.png
+        #    proj.ios_mac/ios/zh-Hans.lproj
+            proj.ios_mac/ios/UserConfigIOS.debug.xcconfig
+            proj.ios_mac/ios/UserConfigIOS.release.xcconfig
+            proj.ios_mac/ios/Images.xcassets
+         #   proj.ios_mac/ios/Base.lproj/Localizable.strings
+            proj.ios_mac/ios/Base.lproj/LaunchScreen.storyboard
         )
 
-    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-        list(APPEND GAME_SOURCES
-            proj.ios_mac/ios/UserConfigIOS.debug.xcconfig
-        )
-    elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-        list(APPEND GAME_SOURCES
-            proj.ios_mac/ios/UserConfigIOS.release.xcconfig
-        )
-    endif()
+    set_source_files_properties(proj.ios_mac/ios/LaunchScreenBackground.png
+        PROPERTIES MACOSX_PACKAGE_LOCATION ios
+        HEADER_FILE_ONLY 1
+    )
 endif()
 
 set(ALL_SOURCE_CODE 
@@ -170,10 +174,12 @@ if(APPLE)
     elseif(IOS)
         target_include_directories(${LIB_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/ios)
         set_target_properties(${LIB_NAME} PROPERTIES
-                              MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/mac/Info.plist"
+                              MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/Info.plist"
                               )  
-        cocos_pak_xcode(${LIB_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
-        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon-${LIB_NAME}")
+        #cocos_pak_xcode(${LIB_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
+        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
+        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchScreen")
+        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHSTORYBOARD_NAE "LaunchScreen")
         set_xcode_property(${LIB_NAME} DEVELOPMENT_TEAM "")
         set_xcode_property(${LIB_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
     endif()
@@ -193,10 +199,6 @@ endif()
 if(WINDOWS)
     set(APP_RES_DIR "$<TARGET_FILE_DIR:${LIB_NAME}>")
     cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_ALL})
-    # target_compile_definitions(${LIB_NAME} PUBLIC
-    #     _HAS_ITERATOR_DEBUGGING=0
-    #     _ITERATOR_DEBUG_LEVEL=0
-    # )
 endif()
 
 # if(WINDOWS)
