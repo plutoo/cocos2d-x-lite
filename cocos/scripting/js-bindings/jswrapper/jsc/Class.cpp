@@ -29,7 +29,7 @@
 #include "Object.hpp"
 #include "Utils.hpp"
 #include "ScriptEngine.hpp"
-#include "State.hpp"
+#include "../State.hpp"
 
 namespace se {
 

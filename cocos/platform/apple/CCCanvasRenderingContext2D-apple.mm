@@ -7,6 +7,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#import <UIKit/UIKit.h>
+#import <UIKit/UIBezierPath.h>
+#endif
+
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
 #import <Cocoa/Cocoa.h>
 #else
