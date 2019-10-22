@@ -167,7 +167,7 @@ endfunction()
 function(setup_cocos_app_config app_name)
     # put all output app into bin/${app_name}
 
-    if(MSVC AND OUTPUT_DIRECTORY)
+    if((XCODE OR MSVC) AND OUTPUT_DIRECTORY)
         set_target_properties(${app_name} PROPERTIES 
             RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY}"
             RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}"

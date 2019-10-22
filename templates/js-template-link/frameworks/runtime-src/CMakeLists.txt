@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME "HelloJavascript")
+project(${APP_NAME} CXX)
 
 set(COCOS2DX_LITE_ROOT "${COCOS_X_ROOT}")
 set(CMAKE_MODULE_PATH ${COCOS2DX_LITE_ROOT}/cmake/Modules)
-
-project(${APP_NAME} CXX)
-
 include(CocosBuildSet)
+
 
 
 # Engine configuration
@@ -34,9 +33,14 @@ add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 
 if(ANDROID)
     set(LIB_NAME cocos2djs)
+elseif(MACOSX)
+    set(LIB_NAME ${APP_NAME}-desktop)
+elseif(IOS)
+    set(LIB_NAME ${APP_NAME}-mobile)
 else()
     set(LIB_NAME ${APP_NAME})
 endif()
+
 
 
 set(GAME_SOURCES
