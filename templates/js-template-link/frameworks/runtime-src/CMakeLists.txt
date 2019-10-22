@@ -1,11 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-set(APP_NAME ExampleCollection)
+set(APP_NAME "HelloJavascript")
 
-
-#set(COCOS2DX_LITE_ROOT ${COCOS_X_ROOT})
-#set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
-set(COCOS2DX_LITE_ROOT /Users/cocos/Github/cocos2d-x-lite)
+set(COCOS2DX_LITE_ROOT "${COCOS_X_ROOT}")
 set(CMAKE_MODULE_PATH ${COCOS2DX_LITE_ROOT}/cmake/Modules)
 
 project(${APP_NAME} CXX)
@@ -30,7 +27,7 @@ set(USE_TIFF            ON) #Enable TIFF format support
 # set(USE_SE_SM           OFF)
 # set(USE_SE_JSC          OFF)
 
-set(USE_SE_SM          ON)
+#set(USE_SE_SM          ON)
 
 add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 

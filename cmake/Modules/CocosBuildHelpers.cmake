@@ -166,7 +166,18 @@ endfunction()
 # setup a cocos application
 function(setup_cocos_app_config app_name)
     # put all output app into bin/${app_name}
-    set_target_properties(${app_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${app_name}")
+
+    if(MSVC AND OUTPUT_DIRECTORY)
+        set_target_properties(${app_name} PROPERTIES 
+            RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY}"
+            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIRECTORY}"
+            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}"
+            )
+    else()
+        set_target_properties(${app_name} PROPERTIES 
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${app_name}")
+    endif()
+
     if(APPLE)
         # output macOS/iOS .app
         set_target_properties(${app_name} PROPERTIES MACOSX_BUNDLE 1)
