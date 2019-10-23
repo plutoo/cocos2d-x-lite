@@ -20,16 +20,15 @@ set(USE_WEB_VIEW         ON) #Enable WebView
 set(USE_AUDIO           ON) #Enable AudioEngine
 set(USE_SOCKET          ON) #Enable WebSocket & SocketIO
 set(USE_TIFF            ON) #Enable TIFF format support
-
+set(USE_CXX_STANDARD  14)
 
 # set(USE_SE_V8           OFF) 
 # set(USE_SE_SM           OFF)
 # set(USE_SE_JSC          OFF)
 
-#set(USE_SE_SM          ON)
-
 add_subdirectory(${COCOS2DX_LITE_ROOT} engine)
 
+## setup target name
 
 if(ANDROID)
     set(LIB_NAME cocos2djs)
@@ -41,7 +40,7 @@ else()
     set(LIB_NAME ${APP_NAME})
 endif()
 
-
+## setup resources & source files
 
 set(GAME_SOURCES
     Classes/AppDelegate.cpp
@@ -102,17 +101,7 @@ elseif(MACOSX)
         ${cc_common_res}
     )
 elseif(IOS)
-    # file(GLOB_RECURSE GAME_SOURCES_IOS
-    #     proj.ios_mac/ios/*
-    # )
-    # # foreach(item ${GAME_SOURCES_IOS})
-    # #     #file(RELATIVE_PATH res proj.ios_mac/ios ${item})
-    # #     # set_source_files_properties(${item} PROPERTIES
-    # #     #     MACOSX_PACKAGE_LOCATION ios
-    # #     # )
-    # # endforeach(item ${GAME_SOURCES_IOS})
-    
-    # # list(APPEND GAME_SOURCES ${GAME_SOURCES_IOS})
+
     list(APPEND GAME_SOURCES 
             proj.ios_mac/ios/main.m
             proj.ios_mac/ios/RootViewController.mm
@@ -144,7 +133,7 @@ set(ALL_SOURCE_CODE
     ${GAME_HEADERS}
 )
 
-
+## setup target & compile options
 
 if(NOT ANDROID)
     add_executable(${LIB_NAME} ${ALL_SOURCE_CODE})
@@ -153,8 +142,7 @@ else()
 endif()
 
 
-
-set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 14)
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD ${USE_CXX_STANDARD})
 
 target_link_libraries(${LIB_NAME} cocos2d)
 target_include_directories(${LIB_NAME}
@@ -166,8 +154,9 @@ setup_cocos_app_config(${LIB_NAME})
 
 
 if(APPLE)
-
+    
     set_target_properties(${LIB_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
+
     if(MACOSX)
         set_target_properties(${LIB_NAME} PROPERTIES
                               MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/mac/Info.plist"
@@ -180,7 +169,6 @@ if(APPLE)
         set_target_properties(${LIB_NAME} PROPERTIES
                               MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/Info.plist"
                               )  
-        #cocos_pak_xcode(${LIB_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
         set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
         set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchScreen")
         set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHSTORYBOARD_NAE "LaunchScreen")
@@ -191,18 +179,17 @@ if(APPLE)
 elseif(WINDOWS)
     # "too large PDB" error often occurs in cpp-tests when using default "/Zi"
     target_compile_options(${LIB_NAME} PRIVATE /Z7)
-    #cocos_copy_target_dll(${LIB_NAME})
-    set(APP_RES_DIR "$<TARGET_FILE_DIR:${LIB_NAME}>")
-    file(GLOB EXT_WINDLL ${COCOS2DX_LITE_ROOT}/external/win32/libs/*.dll)
-    file(GLOB EXT_WINDLL_DBG ${COCOS2DX_LITE_ROOT}/external/win32/libs/Debug/*.dll)
-    #cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_FOLDERS})
-    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${EXT_WINDLL} ${EXT_WINDLL_DBG} ${APP_RES_DIR}
-    )
 endif()
 
 if(WINDOWS)
     set(APP_RES_DIR "$<TARGET_FILE_DIR:${LIB_NAME}>")
+    file(GLOB EXT_WINDLL ${COCOS2DX_LITE_ROOT}/external/win32/libs/*.dll)
+    file(GLOB EXT_WINDLL_DBG ${COCOS2DX_LITE_ROOT}/external/win32/libs/Debug/*.dll)
+    # copy resource files
     cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_ALL})
+    # copy dll files
+    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${EXT_WINDLL} ${EXT_WINDLL_DBG} ${APP_RES_DIR}
+    )
 endif()
 

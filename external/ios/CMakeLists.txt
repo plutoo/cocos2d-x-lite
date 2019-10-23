@@ -32,6 +32,7 @@ set_target_properties(tiff PROPERTIES
 add_library(uv STATIC IMPORTED GLOBAL)
 set_target_properties(uv PROPERTIES
   IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/libuv_a.a
+  INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/include/uv
 )
 
 add_library(webp STATIC IMPORTED GLOBAL)
@@ -42,6 +43,7 @@ set_target_properties(webp PROPERTIES
 add_library(v8_monolith STATIC IMPORTED GLOBAL)
 set_target_properties(v8_monolith PROPERTIES
     IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/libv8_monolith.a
+    INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/include/v8
 )
 
 # add_library(inspector STATIC IMPORTED GLOBAL)
@@ -52,6 +54,7 @@ set_target_properties(v8_monolith PROPERTIES
 add_library(js_static STATIC IMPORTED GLOBAL)
 set_target_properties(js_static PROPERTIES
     IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/libjs_static.a
+    INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/include/spidermonkey
 )
 
 add_library(mozglue STATIC IMPORTED GLOBAL)
@@ -69,10 +72,6 @@ if(USE_SE_V8)
 #    if(USE_V8_DEBUGGER)
 #        list(APPEND se_libs_name)
 #    endif()
-    list(APPEND CC_EXTERNAL_INCLUDES 
-        ${CMAKE_CURRENT_LIST_DIR}/include/v8
-        ${CMAKE_CURRENT_LIST_DIR}/include/uv
-    )
 endif()
 
 if(USE_SE_SM)
@@ -81,9 +80,6 @@ if(USE_SE_SM)
         mozglue
     )
 
-    list(APPEND CC_EXTERNAL_INCLUDES 
-        ${CMAKE_CURRENT_LIST_DIR}/include/spidermonkey
-    )
 endif()
 
 if(USE_SE_JSC)

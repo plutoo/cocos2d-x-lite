@@ -109,7 +109,9 @@ add_library(uv STATIC IMPORTED GLOBAL)
 
 set_target_properties(uv PROPERTIES
   IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/libuv.lib
+  INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/include/uv
 )
+
 
 add_library(vorbis SHARED IMPORTED GLOBAL)
 
@@ -136,6 +138,7 @@ add_library(zlib STATIC IMPORTED GLOBAL)
 set_target_properties(zlib PROPERTIES
   IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/libzlib.lib
   #IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/zlib1.dll
+  INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/include/zlib
 )
 
 add_library(websockets SHARED IMPORTED GLOBAL)
@@ -184,12 +187,12 @@ if(USE_SE_V8)
 
     target_link_libraries(v8 INTERFACE v8_libbase v8_libplatform)
 
+    set_target_properties(v8 PROPERTIES 
+      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/include/v8
+    )
+
     set(se_libs_name v8)
     
-    list(APPEND CC_EXTERNAL_INCLUDES 
-      ${CMAKE_CURRENT_LIST_DIR}/include/v8
-      ${CMAKE_CURRENT_LIST_DIR}/include/uv
-    )
 endif()
 
 
@@ -208,6 +211,7 @@ if(USE_SE_SM)
       IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/Debug/mozjs-52.lib
       #IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.dll
       #IMPORTED_IMPLIB ${CMAKE_CURRENT_LIST_DIR}/libs/mozjs-52.lib
+      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/include/spidermonkey
     )
 
     # add_library(nspr4 SHARED IMPORTED GLOBAL)
@@ -216,10 +220,6 @@ if(USE_SE_SM)
     # )
 
     set(se_libs_name mozglue mozjs)
-
-    list(APPEND CC_EXTERNAL_INCLUDES 
-      ${CMAKE_CURRENT_LIST_DIR}/include/spidermonkey
-    )
 
 endif()
 
@@ -245,4 +245,8 @@ list(APPEND CC_EXTERNAL_LIBS
     ${se_libs_name}
     zlib
     websockets
+)
+
+list(APPEND CC_EXTERNAL_INCLUDES
+  ${CMAKE_CURRENT_LIST_DIR}/include
 )

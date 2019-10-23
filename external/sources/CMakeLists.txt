@@ -33,9 +33,15 @@ if(ANDROID)
     list(APPEND CC_EXTERNAL_SROUCES
       ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c
     )
+    list(APPEND CC_EXTERNAL_INCLUDES
+      ${ANDROID_NDK}/sources/android/cpufeatures
+    )
   else()
     list(APPEND CC_EXTERNAL_SROUCES
       ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c
+    )
+    list(APPEND CC_EXTERNAL_INCLUDES
+      ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures
     )
   endif()
 
@@ -72,3 +78,7 @@ elseif(APPLE)
       )
   endif()
 endif()
+
+list(APPEND CC_EXTERNAL_INCLUDES
+ ${CMAKE_CURRENT_LIST_DIR}
+)

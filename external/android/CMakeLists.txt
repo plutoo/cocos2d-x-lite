@@ -32,6 +32,7 @@ set_target_properties(tiff PROPERTIES
 add_library(uv STATIC IMPORTED GLOBAL)
 set_target_properties(uv PROPERTIES
   IMPORTED_LOCATION ${platform_spec_path}/libuv.a
+  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/uv
 )
 
 add_library(webp STATIC IMPORTED GLOBAL)
@@ -47,6 +48,7 @@ set_target_properties(websockets PROPERTIES
 add_library(z STATIC IMPORTED GLOBAL)
 set_target_properties(z PROPERTIES
   IMPORTED_LOCATION ${platform_spec_path}/libz.a
+  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/zlib
 )
 
 
@@ -136,14 +138,10 @@ if(USE_SE_V8)
     add_library(v8_static STATIC IMPORTED GLOBAL)
     set_target_properties(v8_static PROPERTIES
       IMPORTED_LOCATION ${V8_ARCHIVE_DIR}/v8_static.a
+      INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/v8
     )
 
     set(se_libs_name v8_static)
-
-    list(APPEND CC_EXTERNAL_INCLUDES 
-      ${platform_spec_path}/include/v8
-      ${platform_spec_path}/include/uv
-    )
 
 endif()
 
@@ -176,4 +174,9 @@ list(APPEND CC_EXTERNAL_LIBS
     OpenSLES
     ${se_libs_name}
     z
+)
+
+
+list(APPEND CC_EXTERNAL_INCLUDES
+  ${platform_spec_path}/include
 )

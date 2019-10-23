@@ -161,58 +161,30 @@ endif()
 
 add_library(${COCOSLIB} ${COCOS_SOUCECODE_SOURCES})
 
-set_property(TARGET ${COCOSLIB} PROPERTY CXX_STANDARD 14)
+set_property(TARGET ${COCOSLIB} PROPERTY CXX_STANDARD ${USE_CXX_STANDARD})
 
 target_include_directories(${COCOSLIB} PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
-    ${CMAKE_CURRENT_SOURCE_DIR}/../extensions
     ${CMAKE_CURRENT_SOURCE_DIR}/renderer
     ${CMAKE_CURRENT_SOURCE_DIR}/platform
     ${CMAKE_CURRENT_SOURCE_DIR}/editor-support
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
+    ${CMAKE_CURRENT_SOURCE_DIR}/../extensions
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/sources
     ${CC_EXTERNAL_INCLUDES}
 )
 
-if(WINDOWS)
 
-    target_include_directories(${COCOSLIB} PUBLIC 
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/win32/include/zlib
-    )
-
-elseif(ANDROID)
-    target_include_directories(${COCOSLIB} PUBLIC 
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/android/${ANDROID_ABI}/include/zlib
-    )
-    if(ANDROID_NDK)
-        target_include_directories(${COCOSLIB} PUBLIC 
-            ${ANDROID_NDK}/sources/android/cpufeatures
-        )
-    else()
-        target_include_directories(${COCOSLIB} PUBLIC 
-            ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures
-        )
-    endif()
-elseif(MACOSX)
+if(MACOSX)
     target_include_directories(${COCOSLIB} PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/mac/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../external/sources/
-        ##TODO mac depends ios ?
+        ##why mac depends ios ?
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/ios
     )
-    
-    # target_link_options(${COCOSLIB} PUBLIC
-    #     -llibsql3
-    # )
-elseif(IOS)
-
 endif()
 
 use_cocos2dx_compile_define(${COCOSLIB})
 
-#TODO: document
+# setup default flags
 target_compile_definitions(${COCOSLIB} PUBLIC 
     $<$<NOT:$<BOOL:${USE_VIDEO}>>:USE_VIDEO=0>
     $<$<NOT:$<BOOL:${USE_WEB_VIEW}>>:USE_WEB_VIEW=0>
@@ -226,7 +198,7 @@ target_compile_definitions(${COCOSLIB} PUBLIC
     $<$<NOT:$<BOOL:${USE_V8_DEBUGGER}>>:USE_V8_DEBUGGER=0>
 )
 
-
+# define script engine
 if(NOT USE_SE_AUTO)   
     if(USE_SE_SM) 
         target_compile_definitions(${COCOSLIB} PUBLIC
@@ -245,11 +217,6 @@ if(NOT USE_SE_AUTO)
     endif()
 endif()
 
-if(USE_SE_V8) 
-
-
-endif()
-
 
 cocos_mark_code_files(${COCOSLIB})
 
@@ -264,5 +231,5 @@ if(MSVC)
     target_compile_options(${COCOSLIB}
         PUBLIC /MP
     )
-    target_link_directories(${COCOSLIB} PRIVATE ../external/win32/libs)
+    target_link_directories(${COCOSLIB} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../external/win32/libs)
 endif()
