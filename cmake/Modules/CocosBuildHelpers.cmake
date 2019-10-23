@@ -200,55 +200,10 @@ macro(cocos_fake_set cc_variable cc_value)
     endif()
 endmacro()
 
-# generate macOS app package infomations, need improve for example, the using of info.plist
-macro(cocos_pak_xcode cocos_target)
-    set(oneValueArgs
-        INFO_PLIST
-        BUNDLE_NAME
-        BUNDLE_VERSION
-        COPYRIGHT
-        GUI_IDENTIFIER
-        ICON_FILE
-        INFO_STRING
-        LONG_VERSION_STRING
-        SHORT_VERSION_STRING
-        )
-    set(multiValueArgs)
-    cmake_parse_arguments(COCOS_APP "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-    # set default value
-    cocos_fake_set(COCOS_APP_INFO_PLIST "MacOSXBundleInfo.plist.in")
-    cocos_fake_set(COCOS_APP_BUNDLE_NAME "\${PRODUCT_NAME}")
-    cocos_fake_set(COCOS_APP_BUNDLE_VERSION "1")
-    cocos_fake_set(COCOS_APP_COPYRIGHT "Copyright © 2018. All rights reserved.")
-    cocos_fake_set(COCOS_APP_GUI_IDENTIFIER "org.cocos2dx.${APP_NAME}")
-    cocos_fake_set(COCOS_APP_ICON_FILE "Icon")
-    cocos_fake_set(COCOS_APP_INFO_STRING "cocos2d-x app")
-    cocos_fake_set(COCOS_APP_LONG_VERSION_STRING "1.0.0")
-    cocos_fake_set(COCOS_APP_SHORT_VERSION_STRING "1.0")
-    # set bundle info
-    set_target_properties(${cocos_target}
-                          PROPERTIES
-                          MACOSX_BUNDLE_INFO_PLIST ${COCOS_APP_INFO_PLIST}
-                          )
-    set(MACOSX_BUNDLE_BUNDLE_NAME ${COCOS_APP_BUNDLE_NAME})
-    set(MACOSX_BUNDLE_BUNDLE_VERSION ${COCOS_APP_BUNDLE_VERSION})
-    set(MACOSX_BUNDLE_COPYRIGHT ${COCOS_APP_COPYRIGHT})
-    set(MACOSX_BUNDLE_GUI_IDENTIFIER ${COCOS_APP_GUI_IDENTIFIER})
-    set(MACOSX_BUNDLE_ICON_FILE ${COCOS_APP_ICON_FILE})
-    set(MACOSX_BUNDLE_INFO_STRING ${COCOS_APP_INFO_STRING})
-    set(MACOSX_BUNDLE_LONG_VERSION_STRING ${COCOS_APP_LONG_VERSION_STRING})
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${COCOS_APP_SHORT_VERSION_STRING})
-
-    message(STATUS "cocos package: ${cocos_target}, plist file: ${COCOS_APP_INFO_PLIST}")
-
-   cocos_config_app_xcode_property(${cocos_target})
-endmacro()
-
 # set Xcode property for application, include all depend target
 macro(cocos_config_app_xcode_property cocos_app)
     set(depend_libs)
     search_depend_libs_recursive(${cocos_app} depend_libs)
-    message(STATUS "dep libs ${depend_libs}")
     foreach(depend_lib ${depend_libs})
         if(TARGET ${depend_lib})
             cocos_config_target_xcode_property(${depend_lib})
@@ -269,91 +224,3 @@ endmacro()
 function(set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
     set_property(TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
 endfunction(set_xcode_property)
-
-# works same as find_package, but do additional care to properly find
-macro(cocos_find_package pkg_name pkg_prefix)
-    if(NOT ${pkg_prefix}_FOUND)
-        find_package(${pkg_name} ${ARGN})
-    endif()
-    if(NOT ${pkg_prefix}_INCLUDE_DIRS AND ${pkg_prefix}_INCLUDE_DIR)
-        set(${pkg_prefix}_INCLUDE_DIRS ${${pkg_prefix}_INCLUDE_DIR})
-    endif()
-    if(NOT ${pkg_prefix}_LIBRARIES AND ${pkg_prefix}_LIBRARY)
-        set(${pkg_prefix}_LIBRARIES ${${pkg_prefix}_LIBRARY})
-    endif()
-
-    message(STATUS "${pkg_name} include dirs: ${${pkg_prefix}_INCLUDE_DIRS}")
-endmacro()
-
-# cocos_use_pkg(pkg) function.
-# This function applies standard package variables (after find_package(pkg) call) to current scope
-# Recognized variables: <pkg>_INCLUDE_DIRS, <pkg>_LIBRARIES, <pkg>_LIBRARY_DIRS
-# Also if BUILD_SHARED_LIBS variable off, it is try to use <pkg>_STATIC_* vars before
-function(cocos_use_pkg target pkg)
-    set(prefix ${pkg})
-
-    set(_include_dirs)
-    if(NOT _include_dirs)
-        set(_include_dirs ${${prefix}_INCLUDE_DIRS})
-    endif()
-    if(NOT _include_dirs)
-        # backward compat with old package-find scripts
-        set(_include_dirs ${${prefix}_INCLUDE_DIR})
-    endif()
-    if(_include_dirs)
-        include_directories(${_include_dirs})
-        # message(STATUS "${pkg} add to include_dirs: ${_include_dirs}")
-    endif()
-
-    set(_library_dirs)
-    if(NOT _library_dirs)
-        set(_library_dirs ${${prefix}_LIBRARY_DIRS})
-    endif()
-    if(_library_dirs)
-        link_directories(${_library_dirs})
-        # message(STATUS "${pkg} add to link_dirs: ${_library_dirs}")
-    endif()
-
-    set(_libs)
-    if(NOT _libs)
-        set(_libs ${${prefix}_LIBRARIES})
-    endif()
-    if(NOT _libs)
-        set(_libs ${${prefix}_LIBRARY})
-    endif()
-    if(_libs)
-        target_link_libraries(${target} ${_libs})
-        # message(STATUS "${pkg} libs added to '${target}': ${_libs}")
-    endif()
-
-    set(_defs)
-    if(NOT _defs)
-        set(_defs ${${prefix}_DEFINITIONS})
-    endif()
-    if(_defs)
-        add_definitions(${_defs})
-        # message(STATUS "${pkg} add definitions: ${_defs}")
-    endif()
-
-    set(_dlls)
-    if(NOT _dlls)
-        set(_dlls ${${prefix}_DLLS})
-    endif()
-    if(_dlls)
-        if(MSVC)
-            # message(STATUS "${target} add dll: ${_dlls}")
-            get_property(pre_dlls
-                         TARGET ${target}
-                         PROPERTY CC_DEPEND_DLLS)
-            if(pre_dlls)
-                set(_dlls ${pre_dlls} ${_dlls})
-            endif()
-            set_property(TARGET ${target}
-                         PROPERTY
-                         CC_DEPEND_DLLS ${_dlls}
-                         )
-        endif()
-    endif()
-
-endfunction()
-

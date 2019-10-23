@@ -173,7 +173,10 @@ if(APPLE)
                               MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/mac/Info.plist"
                               )  
     elseif(IOS)
-        target_include_directories(${LIB_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/ios)
+        target_include_directories(${LIB_NAME} PRIVATE 
+            ${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/ios
+            ${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/ios/service
+            )
         set_target_properties(${LIB_NAME} PROPERTIES
                               MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/Info.plist"
                               )  
@@ -183,6 +186,7 @@ if(APPLE)
         set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHSTORYBOARD_NAE "LaunchScreen")
         set_xcode_property(${LIB_NAME} DEVELOPMENT_TEAM "")
         set_xcode_property(${LIB_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
+        cocos_config_app_xcode_property(${LIB_NAME})
     endif()
 elseif(WINDOWS)
     # "too large PDB" error often occurs in cpp-tests when using default "/Zi"

@@ -44,7 +44,8 @@
                 "frameworks/runtime-src/proj.ios_mac/ios/Prefix.pch",
                 "frameworks/runtime-src/proj.ios_mac/PROJECT_NAME.xcodeproj/project.pbxproj",
                 "frameworks/runtime-src/Classes/AppDelegate.cpp",
-                "frameworks/runtime-src/CMakeLists.txt"
+                "frameworks/runtime-src/CMakeLists.txt",
+                "frameworks/runtime-src/proj.ios_mac/ios/Info.plist"
             ]
         },
         "project_replace_package_name": {
