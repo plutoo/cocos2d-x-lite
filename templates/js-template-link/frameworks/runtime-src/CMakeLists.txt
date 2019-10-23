@@ -154,7 +154,7 @@ endif()
 
 
 
-set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 14)
 
 target_link_libraries(${LIB_NAME} cocos2d)
 target_include_directories(${LIB_NAME}
@@ -206,9 +206,3 @@ if(WINDOWS)
     cocos_copy_target_res(${LIB_NAME} COPY_TO ${APP_RES_DIR} DIRFILES ${GAME_RES_ALL})
 endif()
 
-# if(WINDOWS)
-#     # precompiled header. Compilation time speedup ~4x.
-#     target_sources(${LIB_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Classes/precheader.cpp")
-#     set_target_properties(${LIB_NAME} PROPERTIES COMPILE_FLAGS "/Yuprecheader.h /FIprecheader.h")
-#     set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/Classes/precheader.cpp" PROPERTIES COMPILE_FLAGS "/Ycprecheader.h")
-# endif()

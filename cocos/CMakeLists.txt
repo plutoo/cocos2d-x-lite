@@ -161,7 +161,7 @@ endif()
 
 add_library(${COCOSLIB} ${COCOS_SOUCECODE_SOURCES})
 
-set_property(TARGET ${COCOSLIB} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${COCOSLIB} PROPERTY CXX_STANDARD 14)
 
 target_include_directories(${COCOSLIB} PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}
