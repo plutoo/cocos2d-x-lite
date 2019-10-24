@@ -103,21 +103,27 @@ elseif(ANDROID)
     )
 elseif(MACOSX)
     list(APPEND GAME_SOURCES
-        proj.ios_mac/mac/Icon.icns
-        proj.ios_mac/mac/Prefix.pch
         proj.ios_mac/mac/main.cpp
         proj.ios_mac/mac/UserConfigMac.debug.xcconfig
         proj.ios_mac/mac/UserConfigMac.release.xcconfig
     )
 
+    set(APP_UI_RES 
+        proj.ios_mac/mac/Icon.icns
+        proj.ios_mac/mac/Prefix.pch
+        proj.ios_mac/mac/Info.plist
+    )
+
     list(APPEND GAME_SOURCES 
         ${cc_common_res}
+        ${APP_UI_RES}
     )
 elseif(IOS)
 
     set(APP_UI_RES 
         proj.ios_mac/ios/LaunchScreenBackground.png
         proj.ios_mac/ios/Base.lproj/LaunchScreen.storyboard
+        proj.ios_mac/ios/Base.lproj/Localizable.strings
         proj.ios_mac/ios/Images.xcassets
     )
 
