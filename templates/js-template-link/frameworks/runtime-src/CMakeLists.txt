@@ -115,30 +115,27 @@ elseif(MACOSX)
     )
 elseif(IOS)
 
-    list(APPEND GAME_SOURCES 
-            proj.ios_mac/ios/main.m
-            proj.ios_mac/ios/RootViewController.mm
-            proj.ios_mac/ios/AppController.h
-            proj.ios_mac/ios/SDKWrapper.h
-            proj.ios_mac/ios/SDKWrapper.m
-            proj.ios_mac/ios/RootViewController.h
-            proj.ios_mac/ios/AppController.mm
-            proj.ios_mac/ios/service/SDKDelegate.h
-            ${cc_common_res}
-        #    proj.ios_mac/ios/Base.lproj
-            proj.ios_mac/ios/LaunchScreenBackground.png
-        #    proj.ios_mac/ios/zh-Hans.lproj
-            proj.ios_mac/ios/UserConfigIOS.debug.xcconfig
-            proj.ios_mac/ios/UserConfigIOS.release.xcconfig
-            proj.ios_mac/ios/Images.xcassets
-         #   proj.ios_mac/ios/Base.lproj/Localizable.strings
-            proj.ios_mac/ios/Base.lproj/LaunchScreen.storyboard
-        )
-
-    set_source_files_properties(proj.ios_mac/ios/LaunchScreenBackground.png
-        PROPERTIES MACOSX_PACKAGE_LOCATION ios
-        HEADER_FILE_ONLY 1
+    set(APP_UI_RES 
+        proj.ios_mac/ios/LaunchScreenBackground.png
+        proj.ios_mac/ios/Base.lproj/LaunchScreen.storyboard
+        proj.ios_mac/ios/Images.xcassets
     )
+
+    list(APPEND GAME_SOURCES 
+        proj.ios_mac/ios/main.m
+        proj.ios_mac/ios/RootViewController.mm
+        proj.ios_mac/ios/AppController.h
+        proj.ios_mac/ios/SDKWrapper.h
+        proj.ios_mac/ios/SDKWrapper.m
+        proj.ios_mac/ios/RootViewController.h
+        proj.ios_mac/ios/AppController.mm
+        proj.ios_mac/ios/service/SDKDelegate.h
+        ${cc_common_res}
+        proj.ios_mac/ios/UserConfigIOS.debug.xcconfig
+        proj.ios_mac/ios/UserConfigIOS.release.xcconfig
+        ${APP_UI_RES}
+    )
+
 endif()
 
 set(ALL_SOURCE_CODE 
@@ -168,6 +165,8 @@ setup_cocos_app_config(${LIB_NAME})
 
 if(APPLE)
     
+    set(EXECUTABLE_NAME ${LIB_NAME})
+
     set_target_properties(${LIB_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
     if(MACOSX)
         set_target_properties(${LIB_NAME} PROPERTIES
@@ -182,8 +181,8 @@ if(APPLE)
                               MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/Info.plist"
                               )  
         set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
-        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchScreen")
-        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHSTORYBOARD_NAE "LaunchScreen")
+        #set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchScreen")
+        set_xcode_property(${LIB_NAME} ASSETCATALOG_COMPILER_LAUNCHSTORYBOARD_NAME "LaunchScreen")
         set_xcode_property(${LIB_NAME} DEVELOPMENT_TEAM "")
         set_xcode_property(${LIB_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
         cocos_config_app_xcode_property(${LIB_NAME})

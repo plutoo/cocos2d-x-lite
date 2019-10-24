@@ -34,7 +34,7 @@
         message(FATAL_ERROR "Please upgrade cmake to version 3.15+, current version is ${CMAKE_VERSION}")
     endif()
  else()
-     message(FATAL_ERROR "Unsupported platform, CMake will exit")
+     message(FATAL_ERROR "Unsupported platform: `${CMAKE_SYSTEM_NAME}`, CMake will exit")
      return()
  endif()
 
