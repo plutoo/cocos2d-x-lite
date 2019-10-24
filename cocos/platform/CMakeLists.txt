@@ -57,19 +57,11 @@ elseif(APPLE)
             platform/mac/CCApplication-mac.mm
             platform/mac/CCGL-mac.h
             platform/desktop/CCGLView-desktop.cpp
-
+            platform/mac/CCModuleConfigMac.release.xcconfig
+            platform/mac/CCModuleConfigMac.debug.xcconfig
+            ## require code from ios ?
             platform/ios/CCReachability.cpp
         )
-
-        if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-            list(APPEND CC_PLATFORM_SOURCES
-                platform/mac/CCModuleConfigMac.debug.xcconfig
-            )
-        elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-            list(APPEND CC_PLATFORM_SOURCES
-                platform/mac/CCModuleConfigMac.release.xcconfig
-            )
-        endif()
     elseif(IOS)
         list(APPEND CC_PLATFORM_SOURCES
             platform/ios/CCGL-ios.h
@@ -83,27 +75,19 @@ elseif(APPLE)
             platform/ios/CCPlatformDefine-ios.h
             platform/ios/CCEAGLView-ios.h
             platform/ios/CCImage-ios.mm
+            platform/ios/CCModuleConfigIOS.release.xcconfig
+            platform/ios/CCModuleConfigIOS.debug.xcconfig
         )
-
-        if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-            list(APPEND CC_PLATFORM_SOURCES
-                platform/ios/CCModuleConfigIOS.debug.xcconfig
-            )
-        elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-            list(APPEND CC_PLATFORM_SOURCES
-                platform/ios/CCModuleConfigIOS.release.xcconfig
-            )
-        endif()
     endif()
 
 elseif(ANDROID)
-list(APPEND CC_PLATFORM_SOURCES
-    platform/android/CCDevice-android.cpp
-    platform/android/CCFileUtils-android.cpp 
-    platform/android/CCApplication-android.cpp
-    platform/android/CCCanvasRenderingContext2D-android.cpp
-    platform/android/jni/JniImp.cpp 
-    platform/android/jni/JniHelper.cpp
-)
+    list(APPEND CC_PLATFORM_SOURCES
+        platform/android/CCDevice-android.cpp
+        platform/android/CCFileUtils-android.cpp 
+        platform/android/CCApplication-android.cpp
+        platform/android/CCCanvasRenderingContext2D-android.cpp
+        platform/android/jni/JniImp.cpp 
+        platform/android/jni/JniHelper.cpp
+    )
 endif()
 

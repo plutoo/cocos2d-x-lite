@@ -2,6 +2,9 @@
 set(CC_RENDERER_SOURCES
     renderer/renderer/RendererUtils.h
     renderer/renderer/RendererUtils.cpp
+    ##TODO: should not include gfx when gfx renderer is disabled 
+    renderer/gfx/GFXUtils.h
+    renderer/gfx/GFXUtils.cpp
 )
 
 if(USE_GFX_RENDERER)
@@ -26,7 +29,6 @@ if(USE_GFX_RENDERER)
         renderer/gfx/DeviceGraphics.h
         renderer/gfx/FrameBuffer.h
         renderer/gfx/GFX.h
-        renderer/gfx/GFXUtils.h
         renderer/gfx/GraphicsHandle.h
         renderer/gfx/IndexBuffer.h
         renderer/gfx/Program.h
@@ -41,7 +43,6 @@ if(USE_GFX_RENDERER)
         renderer/gfx/DeviceGraphics.cpp
         renderer/gfx/FrameBuffer.cpp
         renderer/gfx/GFX.cpp
-        renderer/gfx/GFXUtils.cpp
         renderer/gfx/GraphicsHandle.cpp
         renderer/gfx/IndexBuffer.cpp
         renderer/gfx/Program.cpp

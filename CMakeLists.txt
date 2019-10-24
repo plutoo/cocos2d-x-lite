@@ -4,10 +4,6 @@ project(cocos2d CXX)
 
 enable_language(ASM C)
 
-if(NOT USE_MIDDLEWARE)
-    set(USE_SPINE OFF)
-    set(USE_DRAGONBONES OFF)
-endif()
 
 if(NOT USE_SE_JSC AND NOT USE_SE_SM AND NOT USE_SE_V8)
     # use default setting
@@ -54,7 +50,23 @@ if(USE_SE_V8)
     set(ENGINE_NAME "V8")
 endif()
 
+
 message(STATUS "Using script engine `${ENGINE_NAME}` on ${CMAKE_SYSTEM_NAME}")
+
+if(ANDROID AND NOT ANDROID_NDK AND CMAKE_ANDROID_NDK)
+    set(ANDROID_NDK ${CMAKE_ANDROID_NDK})
+endif()
+
+## overwrite flags
+
+if(NOT USE_SE_V8)
+    set(USE_V8_DEBUGGER OFF) 
+endif()
+
+if(NOT USE_MIDDLEWARE)
+    set(USE_SPINE OFF)
+    set(USE_DRAGONBONES OFF)
+endif()
 
 add_subdirectory(cocos cocos2d)
 

@@ -91,6 +91,8 @@ set(CC_BASE_SOURCES
     
 )
 
+## localstorage / video / webview
+
 if(WINDOWS)
     list(APPEND CC_BASE_SOURCES
         ui/edit-box/EditBox-win32.cpp    
@@ -133,9 +135,6 @@ elseif(IOS)
     endif()
 endif()
 
-
-
-
 set(COCOS_SOUCECODE_SOURCES 
     ${CC_BASE_HEADERS} 
     ${CC_BASE_SOURCES}
@@ -177,7 +176,7 @@ target_include_directories(${COCOSLIB} PUBLIC
 
 if(MACOSX)
     target_include_directories(${COCOSLIB} PRIVATE 
-        ##why mac depends ios ?
+        ##FIXME: bad dependency
         ${CMAKE_CURRENT_SOURCE_DIR}/platform/ios
     )
 endif()
@@ -231,5 +230,5 @@ if(MSVC)
     target_compile_options(${COCOSLIB}
         PUBLIC /MP
     )
-    target_link_directories(${COCOSLIB} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../external/win32/libs)
+    target_link_directories(${COCOSLIB} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../external/win32/libs)
 endif()

@@ -1,51 +1,44 @@
 include(CMakeParseArguments)
 
+function(cocos_create_copy_res_target cocos_target)
+    set(oneValueArgs COPY_TO)
+    set(multiValueArgs DIRFILES)
+    cmake_parse_arguments(opt "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    add_custom_target(sync_resources
+        COMMAND ${CMAKE_COMMAND} -E echo "copy resources done!"
+        DEPENDS ${opt_DIRFILES}
+    )
+
+    add_dependencies(${cocos_target} sync_resources)
+
+    cocos_copy_target_res(sync_resources COPY_TO ${opt_COPY_TO} DIRFILES ${opt_DIRFILES})
+endfunction()
+
+
 # copy resource `FILES` and `FOLDERS` to TARGET_FILE_DIR/Resources
 function(cocos_copy_target_res cocos_target)
     set(oneValueArgs COPY_TO)
     set(multiValueArgs FILES FOLDERS DIRFILES)
     cmake_parse_arguments(opt "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-    add_custom_command(TARGET ${cocos_target} POST_BUILD
+    add_custom_command(TARGET ${cocos_target} PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "copying resources..."
     )    
-    # copy files
-    foreach(cc_file ${opt_FILES})
-        get_filename_component(file_name ${cc_file} NAME)
-        add_custom_command(TARGET ${cocos_target} POST_BUILD
-            #COMMAND ${CMAKE_COMMAND} -E echo "copy file into Resources: ${file_name} ..."
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cc_file} "${opt_COPY_TO}/${file_name}"
-        )
-    endforeach()
-
     foreach(cc_file ${opt_DIRFILES})
         get_filename_component(file_name ${cc_file} NAME)
         if(IS_DIRECTORY ${cc_file})
-            add_custom_command(TARGET ${cocos_target} POST_BUILD
-                #COMMAND ${CMAKE_COMMAND} -E echo "copy file into Resources: ${file_name} ..."
+            add_custom_command(TARGET ${cocos_target} PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E echo "copy resource folder into runtime directory: ${file_name} ..."
                 COMMAND ${CMAKE_COMMAND} -E copy_directory ${cc_file} "${opt_COPY_TO}/${file_name}"
             )
         else()
-            add_custom_command(TARGET ${cocos_target} POST_BUILD
-                #COMMAND ${CMAKE_COMMAND} -E echo "copy file into Resources: ${file_name} ..."
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cc_file} "${opt_COPY_TO}/${file_name}"
+            add_custom_command(TARGET ${cocos_target} PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E echo "copy resource file into runtime directory: ${file_name} ..."
+                COMMAND ${CMAKE_COMMAND} -E copy ${cc_file} "${opt_COPY_TO}/${file_name}"
             )
         endif()
     endforeach()
 
-    
-    # copy folders files
-    foreach(cc_folder ${opt_FOLDERS})
-        file(GLOB_RECURSE folder_files "${cc_folder}/*")
-        get_filename_component(folder_abs_path ${cc_folder} ABSOLUTE)
-        foreach(res_file ${folder_files})
-            get_filename_component(res_file_abs_path ${res_file} ABSOLUTE)
-            file(RELATIVE_PATH res_file_relat_path ${folder_abs_path} ${res_file_abs_path})
-            add_custom_command(TARGET ${cocos_target} POST_BUILD
-                #COMMAND ${CMAKE_COMMAND} -E echo "copy file into Resources: ${res_file_relat_path} ..."
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${res_file} "${opt_COPY_TO}/${res_file_relat_path}"
-            )
-        endforeach()
-    endforeach()
 endfunction()
 
 # mark `FILES` and files in `FOLDERS` as resource files, the destination is `RES_TO` folder

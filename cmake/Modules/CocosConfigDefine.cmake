@@ -30,10 +30,15 @@
     set(IOS TRUE)
     set(XCODE TRUE)
     set(PLATFORM_FOLDER ios)
+    if(CMAKE_VERSION VERSION_LESS "3.15")
+        message(FATAL_ERROR "Please upgrade cmake to version 3.15+, current version is ${CMAKE_VERSION}")
+    endif()
  else()
      message(FATAL_ERROR "Unsupported platform, CMake will exit")
      return()
  endif()
+
+
 
 # generators that are capable of organizing into a hierarchy of folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -73,18 +78,18 @@ define_property(TARGET
         # Visual Studio 2015, MSVC_VERSION 1900      (v140 toolset)
         # Visual Studio 2017, MSVC_VERSION 1910-1919 (v141 toolset)
         if(${MSVC_VERSION} EQUAL 1900 OR ${MSVC_VERSION} GREATER 1900)
-            message(STATUS "using Windows MSVC generate cocos2d-x project, MSVC_VERSION:${MSVC_VERSION}")
+            message(STATUS "using Windows MSVC generate cocos2d-x-lite project, MSVC_VERSION:${MSVC_VERSION}")
         else()
-            message(FATAL_ERROR "using Windows MSVC generate cocos2d-x project, MSVC_VERSION:${MSVC_VERSION} lower than needed")
+            message(FATAL_ERROR "using Windows MSVC generate cocos2d-x-lite project, MSVC_VERSION:${MSVC_VERSION} lower than needed")
         endif()
     else()
-        message(FATAL_ERROR "please using Windows MSVC compile cocos2d-x project, support other compile tools not yet")
+        message(WARNING "please using Windows MSVC compile cocos2d-x-lite project, support other compile tools not yet")
     endif()
 endif()
 
  # Set macro definitions for special platforms
  function(use_cocos2dx_compile_define target)
-    #target_compile_definitions(${target} PUBLIC $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>)
+    target_compile_definitions(${target} PUBLIC $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>)
     if(APPLE)
         target_compile_definitions(${target} PUBLIC
             __APPLE__
@@ -99,27 +104,26 @@ endif()
         target_compile_definitions(${target} PUBLIC ANDROID)
         target_compile_definitions(${target} PUBLIC USE_FILE32API)
     elseif(WINDOWS)
-        target_compile_definitions(${target} 
-            PUBLIC WIN32
-            PUBLIC _WIN32
-            PUBLIC _WINDOWS
-            PUBLIC UNICODE
-            PUBLIC _UNICODE
-            PUBLIC _CRT_SECURE_NO_WARNINGS
-            PUBLIC _SCL_SECURE_NO_WARNINGS
+        target_compile_definitions(${target} PUBLIC
+            WIN32
+            _WIN32
+            _WINDOWS
+            UNICODE
+            _UNICODE
+            _CRT_SECURE_NO_WARNINGS
+            _SCL_SECURE_NO_WARNINGS
+            CC_STATIC
+            JS_HAVE____INTN
+            JS_INTPTR_TYPE=int
+            XP_WIN
         )
-        if(BUILD_SHARED_LIBS)
-            target_compile_definitions(${target} 
-                PUBLIC _USRDLL
-                PUBLIC _EXPORT_DLL_
-                PUBLIC _USEGUIDLL
-                PUBLIC _USREXDLL
-                PUBLIC _USRSTUDIODLL
-                PUBLIC _USE3DDLL
-            )
-        else()
-            target_compile_definitions(${target} PUBLIC CC_STATIC)
-        endif()
+        target_compile_definitions(${target} PRIVATE 
+            GLFW_EXPOSE_NATIVE_WIN32
+            GLFW_EXPOSE_NATIVE_WGL
+            _USRDLL
+            __MWERKS__
+            _LIB
+        )
     endif()
 endfunction()
 
