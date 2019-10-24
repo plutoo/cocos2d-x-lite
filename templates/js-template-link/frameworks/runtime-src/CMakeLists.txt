@@ -4,7 +4,7 @@ set(APP_NAME "HelloJavascript")
 project(${APP_NAME} CXX)
 
 ## Set engine path
-set(COCOS2DX_LITE_ROOT "C:/Github/cocos2d-x-lite")
+set(COCOS2DX_LITE_ROOT "${COCOS_X_ROOT}")
 if(NOT EXISTS "${COCOS2DX_LITE_ROOT}" AND EXISTS "$ENV{COCOS_X_ROOT}")
     set(COCOS2DX_LITE_ROOT $ENV{COCOS_X_ROOT})
 endif()
