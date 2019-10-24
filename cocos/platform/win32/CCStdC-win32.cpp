@@ -29,6 +29,8 @@ THE SOFTWARE.
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 
 #include "platform/CCStdC.h"
+#include "base/ccMacros.h"
+#include <WinSock2.h>
 
 #ifndef __MINGW32__
 

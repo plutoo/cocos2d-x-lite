@@ -14,25 +14,34 @@ android {
         versionName "1.0"
 
         externalNativeBuild {
-            ndkBuild {
-                if (!project.hasProperty("PROP_NDK_MODE") || PROP_NDK_MODE.compareTo('none') != 0) {
-                    // skip the NDK Build step if PROP_NDK_MODE is none
+            if(PROP_BUILD_TYPE == "cmake") {
+                cmake {
                     targets 'cocos2djs'
-                    arguments 'NDK_TOOLCHAIN_VERSION=clang'
-                    
-                    def module_paths = [project.file("${COCOS_X_ROOT}"),
-                                        project.file("${COCOS_X_ROOT}/cocos"),
-                                        project.file("${COCOS_X_ROOT}/external")]
-                    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                        arguments 'NDK_MODULE_PATH=' + module_paths.join(";")
-                    }
-                    else {
-                        arguments 'NDK_MODULE_PATH=' + module_paths.join(':')
-                    }
-
-                    arguments '-j' + Runtime.runtime.availableProcessors()
+                    arguments "-DCMAKE_FIND_ROOT_PATH=", "-DANDROID_STL=c++_static","-DANDROID_TOOLCHAIN=clang","-DANDROID_ARM_NEON=TRUE"
                     abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
                 }
+            } else {
+                ndkBuild {
+                    if (!project.hasProperty("PROP_NDK_MODE") || PROP_NDK_MODE.compareTo('none') != 0) {
+                        // skip the NDK Build step if PROP_NDK_MODE is none
+                        targets 'cocos2djs'
+                        arguments 'NDK_TOOLCHAIN_VERSION=clang'
+
+                        def module_paths = [project.file("C:/Github/cocos2d-x-lite"),
+                                            project.file("C:/Github/cocos2d-x-lite/cocos"),
+                                            project.file("C:/Github/cocos2d-x-lite/external")]
+                        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                            arguments 'NDK_MODULE_PATH=' + module_paths.join(";")
+                        }
+                        else {
+                            arguments 'NDK_MODULE_PATH=' + module_paths.join(':')
+                        }
+
+                        arguments '-j' + Runtime.runtime.availableProcessors()
+                        abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
+                    }
+                }
+
             }
         }
     }
@@ -45,10 +54,16 @@ android {
     }
 
     externalNativeBuild {
-        ndkBuild {
-            if (!project.hasProperty("PROP_NDK_MODE") || PROP_NDK_MODE.compareTo('none') != 0) {
-                // skip the NDK Build step if PROP_NDK_MODE is none
-                path "jni/Android.mk"
+        if(PROP_BUILD_TYPE == "cmake") {
+            cmake {
+                path "../../CMakeLists.txt"
+            }
+        } else {
+            ndkBuild {
+                if (!project.hasProperty("PROP_NDK_MODE") || PROP_NDK_MODE.compareTo('none') != 0) {
+                    // skip the NDK Build step if PROP_NDK_MODE is none
+                    path "jni/Android.mk"
+                }
             }
         }
     }
@@ -78,8 +93,10 @@ android {
             }
 
             externalNativeBuild {
-                ndkBuild {
-                    arguments 'NDK_DEBUG=0'
+                if(PROP_BUILD_TYPE != "cmake") {
+                    ndkBuild {
+                        arguments 'NDK_DEBUG=0'
+                    }
                 }
             }
         }
@@ -89,8 +106,10 @@ android {
             jniDebuggable true
             renderscriptDebuggable true
             externalNativeBuild {
-                ndkBuild {
-                    arguments 'NDK_DEBUG=1'
+                if(PROP_BUILD_TYPE != "cmake") {
+                    ndkBuild {
+                        arguments 'NDK_DEBUG=1'
+                    }
                 }
             }
         }

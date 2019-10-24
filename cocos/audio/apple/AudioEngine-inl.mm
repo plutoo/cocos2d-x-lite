@@ -32,6 +32,10 @@
 
 #import <OpenAL/alc.h>
 #import <AVFoundation/AVFoundation.h>
+#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#import <UIKit/UIKit.h>
+#import <UIKit/UIDevice.h>
+#endif
 
 #include "audio/include/AudioEngine.h"
 #include "platform/CCFileUtils.h"

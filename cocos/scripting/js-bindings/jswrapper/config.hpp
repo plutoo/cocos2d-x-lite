@@ -25,12 +25,14 @@
 #pragma once
 
 #define SCRIPT_ENGINE_NONE           0
-//#define SCRIPT_ENGINE_SM             1
+#define SCRIPT_ENGINE_SM             1
 #define SCRIPT_ENGINE_V8             2
 #define SCRIPT_ENGINE_JSC            3
 //#define SCRIPT_ENGINE_CHAKRACORE     4
 
 #define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
+
+#ifndef SCRIPT_ENGINE_TYPE
 
 #if defined(__APPLE__)
     #include <TargetConditionals.h>
@@ -58,6 +60,8 @@
 #else
     #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
 #endif
+
+#endif //#ifndef SCRIPT_ENGINE_TYPE
 
 
 #ifndef USE_V8_DEBUGGER
