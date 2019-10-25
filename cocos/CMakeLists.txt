@@ -7,8 +7,8 @@ include(editor-support/CMakeLists.txt)
 include(network/CMakeLists.txt)
 include(scripting/CMakeLists.txt)
 include(renderer/CMakeLists.txt)
-include(../extensions/CMakeLists.txt)
-include(../external/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../extensions/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../external/CMakeLists.txt)
 
 set(CC_BASE_HEADERS 
     cocos2d.h
