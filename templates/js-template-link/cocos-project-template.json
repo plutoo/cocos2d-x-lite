@@ -43,14 +43,17 @@
                 "frameworks/runtime-src/proj.ios_mac/ios/main.m",
                 "frameworks/runtime-src/proj.ios_mac/ios/Prefix.pch",
                 "frameworks/runtime-src/proj.ios_mac/PROJECT_NAME.xcodeproj/project.pbxproj",
-                "frameworks/runtime-src/Classes/AppDelegate.cpp"
+                "frameworks/runtime-src/Classes/AppDelegate.cpp",
+                "frameworks/runtime-src/CMakeLists.txt",
+                "frameworks/runtime-src/proj.ios_mac/ios/Info.plist"
             ]
         },
         "project_replace_package_name": {
             "src_package_name": "org.cocos2dx.hellojavascript",
             "files": [
                 "frameworks/runtime-src/proj.android-studio/app/build.gradle",
-                "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml"
+                "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml",
+                "frameworks/runtime-src/CMakeLists.txt"
             ]
         },
         "project_replace_mac_bundleid": {

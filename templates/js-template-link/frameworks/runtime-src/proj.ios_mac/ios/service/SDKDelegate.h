@@ -7,6 +7,10 @@
 
 #import <Foundation/Foundation.h>
 
+#if CC_PLATFORM_TARGET == CC_PLATFORM_IOS
+#import <UIKit/UIKit.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SDKDelegate <NSObject>
