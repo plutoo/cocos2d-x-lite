@@ -24,6 +24,13 @@ if(USE_SOCKET)
     )
 endif()
 
+if(USE_SOCKET AND USE_WEBSOCKET_SERVER)
+    list(APPEND CC_NETWORK_SOURCES
+        network/WebSocketServer.h
+        network/WebSocketServer.cpp
+    )
+endif()
+
 if(WINDOWS)
     list(APPEND CC_NETWORK_SOURCES 
         network/HttpClient.cpp

@@ -32,6 +32,7 @@ set(USE_CXX_STANDARD    11)
 
 
 set(OPT_COPY_RESOURCE_EVERYTIME ON)
+set(USE_WEBSOCKET_SERVER    ON)
 
 ## Only one engine can be enable on each platform
 ## Use default engine setting by leave them unset
