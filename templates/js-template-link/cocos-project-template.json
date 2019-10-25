@@ -52,7 +52,8 @@
             "src_package_name": "org.cocos2dx.hellojavascript",
             "files": [
                 "frameworks/runtime-src/proj.android-studio/app/build.gradle",
-                "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml"
+                "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml",
+                "frameworks/runtime-src/CMakeLists.txt"
             ]
         },
         "project_replace_mac_bundleid": {
@@ -65,11 +66,6 @@
             "src_bundle_id": "org.cocos2dx.hellojavascript",
             "files": [
                 "frameworks/runtime-src/proj.ios_mac/ios/Info.plist"
-            ]
-        },
-        "project_replace_x_engine" : {
-            "files": [
-                "frameworks/runtime-src/CMakeLists.txt"
             ]
         }
     }

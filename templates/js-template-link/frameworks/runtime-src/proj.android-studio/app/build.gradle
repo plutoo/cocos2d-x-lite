@@ -27,9 +27,9 @@ android {
                         targets 'cocos2djs'
                         arguments 'NDK_TOOLCHAIN_VERSION=clang'
 
-                        def module_paths = [project.file("C:/Github/cocos2d-x-lite"),
-                                            project.file("C:/Github/cocos2d-x-lite/cocos"),
-                                            project.file("C:/Github/cocos2d-x-lite/external")]
+                        def module_paths = [project.file("${COCOS_X_ROOT}"),
+                                            project.file("${COCOS_X_ROOT}/cocos"),
+                                            project.file("${COCOS_X_ROOT}/external")]
                         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                             arguments 'NDK_MODULE_PATH=' + module_paths.join(";")
                         }
