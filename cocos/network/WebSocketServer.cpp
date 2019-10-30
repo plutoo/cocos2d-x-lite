@@ -1,15 +1,11 @@
-#include "WebSocketServer.h"
-
-
-
-#ifndef EXT_BUILD
-#include "platform/CCApplication.h"
-#include "base/CCScheduler.h"
-#endif
 
 #include <iostream>
 
-#ifndef EXT_BUILD
+#include "WebSocketServer.h"
+#include "platform/CCApplication.h"
+#include "base/CCScheduler.h"
+#include "uv/uv.h"
+
 namespace cocos2d {
     namespace network {
 
@@ -19,16 +15,6 @@ namespace cocos2d {
         task; \
     });\
     } while(0)
-
-#else 
-
-#define RUN_IN_GAMETHREAD(task) \
-    do { \
-        task; \
-    } while(0)
-
-#endif
-
 
 #define DISPATCH_CALLBACK_IN_GAME_LOOP() do {\
         data->setCallback([callback](const std::string& msg) { \
@@ -180,6 +166,8 @@ WebSocketServer::~WebSocketServer()
         lws_context_destroy2(_ctx);
         _ctx = nullptr;
     }
+
+    delete _subthread;
 }
 
 bool WebSocketServer::close(std::function<void(const std::string & errorMsg)> callback)
@@ -243,11 +231,17 @@ bool WebSocketServer::listen(int port, const std::string& host, std::function<vo
         RUN_IN_GAMETHREAD(_onlistening(""));
 
     _booted = true;
+    
+    if (_onbegin)
+        RUN_IN_GAMETHREAD(_onbegin());
 
     lws_libuv_run(_ctx, 0);
 
 
     uv_close((uv_handle_t*)&_async, nullptr);
+
+    if (_onend)
+        RUN_IN_GAMETHREAD(_onend());
 
     return true;
 }
@@ -429,6 +423,7 @@ bool Connection::close(int code, std::string message)
 {
     LOGE();
     if (!_wsi) return false;
+    _readyState = ReadyState::CLOSING;
     _closeReason = message;
     _closeCode = code;
     setClosed();
@@ -439,6 +434,7 @@ bool Connection::close(int code, std::string message)
 bool Connection::closeAsync(int code, std::string message)
 {
     LOGE();
+    _readyState = ReadyState::CLOSING;
     if (!_wsi) return false;
     schedule_async_task(&_async, [this, code, message]() {
         this->close(code, message);
@@ -448,6 +444,7 @@ bool Connection::closeAsync(int code, std::string message)
 
 void Connection::onConnected()
 {
+    _readyState = ReadyState::OPEN;
     if (_onconnect)
         RUN_IN_GAMETHREAD(_onconnect());
 }
@@ -476,6 +473,12 @@ void Connection::onDataReceive(void* in, int len)
         {
             RUN_IN_GAMETHREAD(_ontext(_prevPkg));
         }
+
+        if (_ondata)
+        {
+            RUN_IN_GAMETHREAD(_ontext(_prevPkg));
+        }
+
         _prevPkg.reset();
     }
 
@@ -552,6 +555,8 @@ void Connection::onHTTP()
 
     _headers.clear();
 
+    _readyState = ReadyState::CONNECTING;
+
     int n = 0, len;
     std::vector<char> buf(256);
     const char* c;
@@ -600,20 +605,20 @@ void Connection::setClosed()
 
 void Connection::finallyClosed()
 {
+    _readyState = ReadyState::CLOSED;
     //on wsi destroied
     if (_wsi)
+    {
         if (_onclose) {
             RUN_IN_GAMETHREAD(_onclose(_closeCode, _closeReason));
         }
+
+        if (_onend) {
+            RUN_IN_GAMETHREAD(_onend());
+        }
+    }
 }
 
-int Connection::getReadyState()
-{
-    //    if (_wsi) {
-    //        return lws_read
-    //    }
-    return 0;
-}
 
 std::vector<std::string> Connection::getProtocols() {
     std::vector<std::string> ret;
@@ -817,7 +822,5 @@ static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons 
 }
 
 
-#ifndef EXT_BUILD
-    }
-    }
-#endif
+} // namespace network
+} // namespace cocos2d

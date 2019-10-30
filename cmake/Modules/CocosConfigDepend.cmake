@@ -3,7 +3,9 @@ macro(cocos2dx_depend)
     set(PLATFORM_SPECIFIC_LIBS)
 
     if(WINDOWS)
-        list(APPEND PLATFORM_SPECIFIC_LIBS ws2_32 userenv psapi winmm Version Iphlpapi opengl32)
+        list(APPEND PLATFORM_SPECIFIC_LIBS ws2_32 userenv psapi winmm Version Iphlpapi opengl32
+            advapi32 shell32
+        )
     elseif(ANDROID)
         list(APPEND PLATFORM_SPECIFIC_LIBS GLESv2 EGL log android OpenSLES)
     elseif(APPLE)

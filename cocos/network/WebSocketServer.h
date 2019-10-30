@@ -3,12 +3,6 @@
 
 
 
-#ifndef EXT_BUILD
-#include "platform/CCPlatformDefine.h"
-#endif
-
-#include "uv.h"
-#include "libwebsockets.h"
 
 #include <string>
 #include <vector>
@@ -21,7 +15,12 @@
 #include <thread>
 #include <mutex>
 
+#ifndef EXT_BUILD
+#include "platform/CCPlatformDefine.h"
+#endif
 
+
+#include "libwebsockets.h"
 
 #ifndef EXT_BUILD
 
@@ -74,9 +73,9 @@ public:
 
     std::string toString();
 
-private:
-
     unsigned char* getData() { return _underlying_data.data() + LWS_PRE; }
+
+private:
 
     std::vector<unsigned char> _underlying_data;
     int _consumed = 0;
@@ -91,6 +90,13 @@ public:
 
     Connection(struct lws* wsi);
     virtual ~Connection();
+
+    enum ReadyState {
+        CONNECTING = 1,
+        OPEN = 2,
+        CLOSING = 3,
+        CLOSED = 4
+    };
 
     enum class Event {
         close,
@@ -120,15 +126,13 @@ public:
     bool close(int code = 1000, std::string reasson = "close normal");
     bool closeAsync(int code = 1000, std::string reasson = "close normal");
 
-
-    int getReadyState();
-
-    /** not use full */
     //int getSocket();
+    //std::shared_ptr<WebSocketServer>& getServer();
+    //std::string& getPath();
 
-    std::shared_ptr<WebSocketServer>& getServer();
-
-    std::string& getPath();
+    inline int getReadyState() const {
+        return (int)_readyState;
+    }
 
     std::map<std::string, std::string> getHeaders();
 
@@ -154,13 +158,24 @@ public:
         _onbinary = cb;
     }
 
+    inline void setOnData(std::function<void(std::shared_ptr<DataFrag>)> cb)
+    {
+        _ondata = cb;
+    }
+
     inline void setOnConnect(std::function<void()> cb)
     {
         _onconnect = cb;
     }
 
+    inline void setOnEnd(std::function<void()> cb)
+    {
+        _onend= cb;
+    }
+
     inline void scheduleSend() {
         if (_wsi) {
+
             lws_callback_on_writable(_wsi);
         }
     }
@@ -168,6 +183,9 @@ public:
 
     void setClosed();
 
+
+    inline void setData(void* d) { _data = d; }
+    inline void* getData() const { return _data; }
 private:
 
     void onConnected();
@@ -187,20 +205,24 @@ private:
     bool _closed = false;
     std::string _closeReason = "close connection";
     int         _closeCode = 1000;
-
+    ReadyState  _readyState = ReadyState::CLOSED;
 
     // Attention: do not reference **this** in callbacks
     std::function<void(int, const std::string&)> _onclose;
     std::function<void(const std::string&)> _onerror;
     std::function<void(std::shared_ptr<DataFrag>)> _ontext;
     std::function<void(std::shared_ptr<DataFrag>)> _onbinary;
+    std::function<void(std::shared_ptr<DataFrag>)> _ondata;
     std::function<void()> _onconnect;
     //std::function<void()> _onpong;
+    
+    std::function<void()> _onend;
 
     friend class WebSocketServer;
 
 
     uv_async_t _async;
+    void* _data = nullptr;
 
 };
 
@@ -246,6 +268,19 @@ public:
         _onconnection = cb;
     }
 
+    inline void setOnEnd(std::function<void()> cb)
+    {
+        _onend = cb;
+    }
+
+    inline void setOnBegin(std::function<void()> cb)
+    {
+        _onbegin = cb;
+    }
+
+    inline void setData(void* d) { _data = d; }
+    inline void* getData() const { return _data; }
+
 protected:
 
     void onCreateClient(struct lws* wsi);
@@ -266,12 +301,17 @@ private:
     std::function<void(const std::string&)> _onlistening;
     std::function<void(const std::string&)> _onerror;
     std::function<void(const std::string&)> _onclose;
+    std::function<void()> _onend;
+    std::function<void()> _onbegin;
     std::function<void(std::shared_ptr<Connection>)> _onconnection;
 
     std::thread* _subthread = nullptr;
 
     uv_async_t _async;
     bool _booted = false;
+    
+    void* _data = nullptr;
+
 
     friend int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons reason,
         void* user, void* in, size_t len);
