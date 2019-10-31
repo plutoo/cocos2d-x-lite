@@ -2,13 +2,9 @@
 #include <iostream>
 #include <cassert>
 
-#ifndef WSS_EXTERNAL_TEST_BUILD
-
 #include "WebSocketServer.h"
 #include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
-
-
 namespace cocos2d {
 namespace network {
 
@@ -26,59 +22,9 @@ namespace network {
         }); \
     }while(0)
 
-#else
 
-#include "WebSocketServer.h"
-#include "uv.h"
-#include <cstdio>
-#include <cstring>
-
-#define RUN_IN_GAMETHREAD(task) \
-    do { \
-        task; \
-    } while(0)
-
-#define DISPATCH_CALLBACK_IN_GAME_LOOP() do {\
-        data->setCallback([callback](const std::string& msg) { \
-            auto wrapper = [callback, msg]() {callback(msg); }; \
-            RUN_IN_GAMETHREAD(wrapper()); \
-        }); \
-    }while(0)
-//#define CCLOG(fmt, ...) do {\ 
-//        char _buf[256] = { 0 }; \
-//        snprintf(_buf, 256, fmt, ##__VA_ARGS__); \
-//        std::cout << "[CCLOG]" << _buf << std::endl; \
-//    } while(0)
-
-#define CCLOG printf
-#endif
-
-
-
-#ifdef WS_LOG_FUN
-
-void LOG_EVENT(const char* fn) 
-{
-    time_t rawtime;
-    struct tm* timeinfo;
-    char buffer[80];
-
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-
-    strftime(buffer, 80, "%H:%M:%S", timeinfo);
-
-    std::cout << buffer << " [fn] " << fn << std::endl;
-}
-#define LOGE() LOG_EVENT(__FUNCTION__)
-
-#else
 //#define LOGE() CCLOG("WSS: %s", __FUNCTION__)
 #define LOGE()
-#endif
-
-
-
 
 
 #define MAX_MSG_PAYLOAD 2048
@@ -117,22 +63,6 @@ static void schedule_async_task(uv_async_t* asyn, std::function<void()> func)
     }
     uv_async_send(asyn);
 }
-
-#if USE_EXT_LIBUV_LOOP
-struct timer_count {
-    int c = 0;
-    int max = 1;
-};
-static void timer_callback(uv_timer_t* timer) {
-    struct timer_count* d = (struct timer_count*)timer->data;
-    if (d->c >= d->max) {
-        uv_timer_stop(timer);
-    }
-    d->c++;
-    CCLOG("TIMER LOG \n");
-}
-#endif
-
 
 DataFrag::DataFrag(const std::string& data) :_isBinary(false)
 {
@@ -187,7 +117,7 @@ static struct lws_protocols protocols[] = {
         "", //protocol name
         WebSocketServer::websocket_server_callback,
         sizeof(int),
-        0
+        MAX_MSG_PAYLOAD
     },
     {
         nullptr, nullptr, 0
@@ -215,15 +145,11 @@ WebSocketServer::~WebSocketServer()
 {
 
     if (_ctx) {
-
         RUN_IN_GAMETHREAD(if(_onclose) _onclose(""));
-
         lws_context_destroy(_ctx);
         lws_context_destroy2(_ctx);
         _ctx = nullptr;
     }
-
-    delete _subthread;
 }
 
 bool WebSocketServer::close(std::function<void(const std::string & errorMsg)> callback)
@@ -244,7 +170,7 @@ bool WebSocketServer::closeAsync(std::function<void(const std::string & errorMsg
 
 bool WebSocketServer::listen(int port, const std::string& host, std::function<void(const std::string & errorMsg)> callback)
 {
-
+    _serverState = ServerThreadState::RUNNING;
     lws_set_log_level(-1, nullptr);
 
     if (_ctx) {
@@ -252,23 +178,12 @@ bool WebSocketServer::listen(int port, const std::string& host, std::function<vo
             RUN_IN_GAMETHREAD(callback("Error: lws_context already created!"));
         }
         RUN_IN_GAMETHREAD(if (_onerror)_onerror("websocket listen error!"));
+        _serverState = ServerThreadState::ST_ERROR;
         return false;
     }
 
     _host = host;
-#if USE_EXT_LIBUV_LOOP
-    _loop = (uv_loop_t*)malloc(sizeof(*_loop));
-    memset(_loop, 0, sizeof(*_loop));
-    uv_loop_init(_loop);
 
-    uv_timer_init(_loop, &_timer);
-    struct timer_count tc;
-    tc.max = 20;
-    _timer.data = &tc;
-    uv_timer_start(&_timer, timer_callback, 0, 10);
-    uv_run(_loop, UV_RUN_DEFAULT);
-
-#endif
     struct lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
     info.port = port;
@@ -295,55 +210,43 @@ bool WebSocketServer::listen(int port, const std::string& host, std::function<vo
             RUN_IN_GAMETHREAD(callback("Error: Failed to create lws_context!"));
         }
         RUN_IN_GAMETHREAD(if (_onerror)_onerror("websocket listen error!"));
+        _serverState = ServerThreadState::ST_ERROR;
         return false;
     }
     uv_loop_t* loop = nullptr;
-#if USE_EXT_LIBUV_LOOP
-    loop = _loop;
-#endif
     if (lws_uv_initloop(_ctx, loop, 0)) {
         if (callback) {
             RUN_IN_GAMETHREAD(callback("Error: Failed to create libuv loop!"));
         }
         RUN_IN_GAMETHREAD(if (_onerror)_onerror("websocket listen error, failed to create libuv loop!"));
+        _serverState = ServerThreadState::ST_ERROR;
         return false;
     }
-#if USE_EXT_LIBUV_LOOP
-    assert(lws_uv_getloop(_ctx, 0) == loop);
-#else 
-    loop = lws_uv_getloop(_ctx, 0);
-#endif
 
-    _booted = true;
+    loop = lws_uv_getloop(_ctx, 0);
     async_init(loop, &_async);
     RUN_IN_GAMETHREAD(if(_onlistening)_onlistening(""));
     RUN_IN_GAMETHREAD(if(_onbegin)_onbegin());
     RUN_IN_GAMETHREAD(if(callback)callback(""));
 
-#if USE_EXT_LIBUV_LOOP
-    uv_run(loop, UV_RUN_DEFAULT);
-#else
     lws_libuv_run(_ctx, 0);
-#endif
-
     uv_close((uv_handle_t*)&_async, nullptr);
-#if USE_EXT_LIBUV_LOOP
-    uv_loop_close(loop);
-#endif
+
     RUN_IN_GAMETHREAD(if(_onend)_onend());
+    _serverState = ServerThreadState::STOPPED;
 
     return true;
 }
 
 bool WebSocketServer::listenAsync(int port, const std::string& host, std::function<void(const std::string & errorMsg)> callback)
 {
-    if (this->_subthread) {
+    if (_serverState != ServerThreadState::NOT_BOOTED) {
         return false;
     }
 
-    this->_subthread = new std::thread([=]() {
+    std::thread([=]() {
         this->listen(port, host, callback);
-        });
+        }).detach();
 
     return true;
 }
