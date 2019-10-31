@@ -29,7 +29,7 @@ namespace network {
 #define CC_DLL 
 #endif
 
-class Connection;
+class WSServerConnection;
 class WebSocketServer;
 
 class DataFrag {
@@ -80,11 +80,11 @@ private:
 };
 
 
-class CC_DLL Connection {
+class CC_DLL WSServerConnection {
 public:
 
-    Connection(struct lws* wsi);
-    virtual ~Connection();
+    WSServerConnection(struct lws* wsi);
+    virtual ~WSServerConnection();
 
     enum ReadyState {
         CONNECTING = 1,
@@ -241,7 +241,7 @@ public:
     bool listenAsync(int port, const std::string& host = "", std::function<void(const std::string & errorMsg)> callback = nullptr);
     bool closeAsync(std::function<void(const std::string & errorMsg)> callback = nullptr);
 
-    std::vector<std::shared_ptr<Connection>> getConnections() const;
+    std::vector<std::shared_ptr<WSServerConnection>> getConnections() const;
 
     void setOnListening(std::function<void(const std::string&)> cb)
     {
@@ -258,7 +258,7 @@ public:
         _onclose = cb;
     }
 
-    void setOnConnection(std::function<void(std::shared_ptr<Connection>)> cb)
+    void setOnConnection(std::function<void(std::shared_ptr<WSServerConnection>)> cb)
     {
         _onconnection = cb;
     }
@@ -289,7 +289,7 @@ private:
 
     std::string _host;
     lws_context* _ctx = nullptr;
-    std::unordered_map<struct lws*, std::shared_ptr<Connection> > _conns;
+    std::unordered_map<struct lws*, std::shared_ptr<WSServerConnection> > _conns;
 
     // Attention: do not reference **this** in callbacks
 
@@ -298,7 +298,7 @@ private:
     std::function<void(const std::string&)> _onclose;
     std::function<void()> _onend;
     std::function<void()> _onbegin;
-    std::function<void(std::shared_ptr<Connection>)> _onconnection;
+    std::function<void(std::shared_ptr<WSServerConnection>)> _onconnection;
 
     std::thread* _subthread = nullptr;
 

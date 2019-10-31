@@ -216,7 +216,7 @@ WebSocketServer::~WebSocketServer()
 
     if (_ctx) {
 
-        if (_onclose) _onclose("");
+        RUN_IN_GAMETHREAD(if(_onclose) _onclose(""));
 
         lws_context_destroy(_ctx);
         lws_context_destroy2(_ctx);
@@ -228,7 +228,8 @@ WebSocketServer::~WebSocketServer()
 
 bool WebSocketServer::close(std::function<void(const std::string & errorMsg)> callback)
 {
-    lws_libuv_stop(_ctx);
+    if(_ctx)
+        lws_libuv_stop(_ctx);
     return true;
 }
 
@@ -245,6 +246,14 @@ bool WebSocketServer::listen(int port, const std::string& host, std::function<vo
 {
 
     lws_set_log_level(-1, nullptr);
+
+    if (_ctx) {
+        if (callback) {
+            RUN_IN_GAMETHREAD(callback("Error: lws_context already created!"));
+        }
+        RUN_IN_GAMETHREAD(if (_onerror)_onerror("websocket listen error!"));
+        return false;
+    }
 
     _host = host;
 #if USE_EXT_LIBUV_LOOP
@@ -277,6 +286,7 @@ bool WebSocketServer::listen(int port, const std::string& host, std::function<vo
     info.timeout_secs = 3; //
     info.max_http_header_pool = 1;
     info.user = this;
+
 
     _ctx = lws_create_context(&info);
 
@@ -339,7 +349,7 @@ bool WebSocketServer::listenAsync(int port, const std::string& host, std::functi
 }
 
 
-std::vector<std::shared_ptr<Connection>> WebSocketServer::getConnections() const
+std::vector<std::shared_ptr<WSServerConnection>> WebSocketServer::getConnections() const
 {
     return {};
 }
@@ -347,7 +357,7 @@ std::vector<std::shared_ptr<Connection>> WebSocketServer::getConnections() const
 void WebSocketServer::onCreateClient(struct lws* wsi)
 {
     LOGE();
-    std::shared_ptr<Connection> conn = std::make_shared<Connection>(wsi);
+    std::shared_ptr<WSServerConnection> conn = std::make_shared<WSServerConnection>(wsi);
 
     char ip[221] = { 0 };
     char addr[221] = { 0 };
@@ -422,7 +432,7 @@ void WebSocketServer::onClientHTTP(struct lws* wsi)
     }
 }
 
-Connection::Connection(struct lws* wsi) : _wsi(wsi)
+WSServerConnection::WSServerConnection(struct lws* wsi) : _wsi(wsi)
 {
     LOGE();
     uv_loop_t* loop = lws_uv_getloop(lws_get_context(wsi), 0);
@@ -430,13 +440,13 @@ Connection::Connection(struct lws* wsi) : _wsi(wsi)
 }
 
 
-Connection::~Connection()
+WSServerConnection::~WSServerConnection()
 {
     LOGE();
     //uv_close((uv_handle_t*)&_async, nullptr);
 }
 
-bool Connection::send(std::shared_ptr<DataFrag> data)
+bool WSServerConnection::send(std::shared_ptr<DataFrag> data)
 {
     {
         std::lock_guard<std::mutex> guard(_sendQueueMtx);
@@ -447,7 +457,7 @@ bool Connection::send(std::shared_ptr<DataFrag> data)
 }
 
 
-bool Connection::sendText(const std::string& text, std::function<void(const std::string&)> callback)
+bool WSServerConnection::sendText(const std::string& text, std::function<void(const std::string&)> callback)
 {
     LOGE();
     std::shared_ptr<DataFrag> data = std::make_shared<DataFrag>(text);
@@ -458,7 +468,7 @@ bool Connection::sendText(const std::string& text, std::function<void(const std:
     return true;
 }
 
-bool Connection::sendTextAsync(const std::string& text, std::function<void(const std::string&)> callback)
+bool WSServerConnection::sendTextAsync(const std::string& text, std::function<void(const std::string&)> callback)
 {
     LOGE();
     std::shared_ptr<DataFrag> data = std::make_shared<DataFrag>(text);
@@ -472,7 +482,7 @@ bool Connection::sendTextAsync(const std::string& text, std::function<void(const
     return true;
 }
 
-bool Connection::sendBinary(const void* in, size_t len, std::function<void(const std::string&)> callback)
+bool WSServerConnection::sendBinary(const void* in, size_t len, std::function<void(const std::string&)> callback)
 {
     LOGE();
     std::shared_ptr<DataFrag> data = std::make_shared<DataFrag>(in, len);
@@ -484,7 +494,7 @@ bool Connection::sendBinary(const void* in, size_t len, std::function<void(const
 }
 
 
-bool Connection::sendBinaryAsync(const void* in, size_t len, std::function<void(const std::string&)> callback)
+bool WSServerConnection::sendBinaryAsync(const void* in, size_t len, std::function<void(const std::string&)> callback)
 {
     LOGE();
     std::shared_ptr<DataFrag> data = std::make_shared<DataFrag>(in, len);
@@ -499,7 +509,7 @@ bool Connection::sendBinaryAsync(const void* in, size_t len, std::function<void(
 }
 
 
-bool Connection::close(int code, std::string message)
+bool WSServerConnection::close(int code, std::string message)
 {
     LOGE();
     if (!_wsi) return false;
@@ -512,7 +522,7 @@ bool Connection::close(int code, std::string message)
 }
 
 
-bool Connection::closeAsync(int code, std::string message)
+bool WSServerConnection::closeAsync(int code, std::string message)
 {
     LOGE();
     _readyState = ReadyState::CLOSING;
@@ -523,13 +533,13 @@ bool Connection::closeAsync(int code, std::string message)
     return true;
 }
 
-void Connection::onConnected()
+void WSServerConnection::onConnected()
 {
     _readyState = ReadyState::OPEN;
     RUN_IN_GAMETHREAD(if(_onconnect)_onconnect());
 }
 
-void Connection::onDataReceive(void* in, int len)
+void WSServerConnection::onDataReceive(void* in, int len)
 {
     LOGE();
 
@@ -563,7 +573,7 @@ void Connection::onDataReceive(void* in, int len)
 
 
 
-int Connection::onDrainData()
+int WSServerConnection::onDrainData()
 {
     LOGE();
     if (!_wsi) return -1;
@@ -639,7 +649,7 @@ int Connection::onDrainData()
 
 }
 
-void Connection::onHTTP()
+void WSServerConnection::onHTTP()
 {
     if (!_wsi) return;
 
@@ -675,20 +685,20 @@ void Connection::onHTTP()
 
 }
 
-void Connection::onCloseInit(int code, const std::string& msg)
+void WSServerConnection::onCloseInit(int code, const std::string& msg)
 {
     _closeCode = code;
     _closeReason = msg;
 }
 
-void Connection::setClosed()
+void WSServerConnection::setClosed()
 {
     if (_closed) return;
     lws_close_reason(_wsi, (lws_close_status)_closeCode, (unsigned char*)_closeReason.c_str(), _closeReason.length());
     _closed = true;
 }
 
-void Connection::finallyClosed()
+void WSServerConnection::finallyClosed()
 {
     _readyState = ReadyState::CLOSED;
     //on wsi destroied
@@ -700,7 +710,7 @@ void Connection::finallyClosed()
 }
 
 
-std::vector<std::string> Connection::getProtocols() {
+std::vector<std::string> WSServerConnection::getProtocols() {
     std::vector<std::string> ret;
     if (_wsi) {
         //TODO 
@@ -714,7 +724,7 @@ std::vector<std::string> Connection::getProtocols() {
     return ret;
 }
 
-std::map<std::string, std::string> Connection::getHeaders()
+std::map<std::string, std::string> WSServerConnection::getHeaders()
 {
     if (!_wsi) return {};
     return _headers;
