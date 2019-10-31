@@ -22,15 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-//#include "base/ccConfig.h"
-#include "platform/CCPlatformConfig.h"
 #include "base/ccConfig.h"
-#include "jsb_websocket_server.hpp"
+#include "platform/CCPlatformConfig.h"
+
 
 #if (USE_SOCKET > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 
+#include "jsb_websocket_server.hpp"
 #include "uv/uv.h"
-
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
@@ -46,14 +45,22 @@ se::Class* __jsb_WebSocketServer_Connection_class = nullptr;
 typedef std::shared_ptr<WebSocketServer>* WSSPTR;
 typedef std::shared_ptr<Connection>* WSCONNPTR;
 
-static bool WebSocket_finalize(se::State& s)
+static int __sendIndex = 1;
+
+static std::string gen_send_index() {
+    char buf[128] = { 0 };
+    snprintf(buf, 127, "__send_[%d]", __sendIndex++);
+    return buf;
+}
+
+static bool WebSocketServer_finalize(se::State& s)
 {
     WSSPTR cobj = (WSSPTR)s.nativeThisObject();
     CCLOGINFO("jsbindings: finalizing JS object %p (WebSocketServer)", cobj);
     delete cobj;
     return true;
 }
-SE_BIND_FINALIZE_FUNC(WebSocket_finalize)
+SE_BIND_FINALIZE_FUNC(WebSocketServer_finalize)
 
 static bool WebSocketServer_constructor(se::State& s)
 {
@@ -120,14 +127,32 @@ static bool WebSocketServer_listen(se::State& s) {
             funObj = args[2].toObject();
         }
         if (funObj) {
-            se::Value jsThis(s.thisObject());
-            jsThis.toObject()->attachObject(funObj);
-            arg_callback = [funObj, jsThis](const std::string &err) {
+            s.thisObject()->setProperty("__onlisten", se::Value(funObj));
+            std::weak_ptr<WebSocketServer> serverWeak = *cobj;
+            arg_callback = [serverWeak](const std::string &err) {
                 se::AutoHandleScope hs;
+
+                auto serverPtr = serverWeak.lock();
+                if (!serverPtr) {
+                    return;
+                }
+                se::Object *sobj = (se::Object*) serverPtr->getData();
+                if (!sobj) {
+                    return;
+                }
+                se::Value callback;
+                if (!sobj->getProperty("__onlisten", &callback))
+                {
+                    SE_REPORT_ERROR("onlisten attribute not set!");
+                    return;
+                }
+
                 se::ValueArray args;
-                args.push_back(se::Value(err));
-                se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                bool success = funObj->call(args, thisObj, nullptr);
+                if(!err.empty())
+                {
+                    args.push_back(se::Value(err));
+                }
+                bool success = callback.toObject()->call(args, sobj, nullptr);
                 if (!success) {
                     se::ScriptEngine::getInstance()->clearException();
                 }
@@ -152,24 +177,41 @@ static bool WebSocketServer_onconnection(se::State& s) {
     WSSPTR cobj = (WSSPTR)s.nativeThisObject();
 
 
-    se::Object* funObj = args[0].toObject();
-    se::Value jsThis(s.thisObject());
-    jsThis.toObject()->attachObject(funObj);
-
-    cobj->get()->setOnConnection([funObj,jsThis](std::shared_ptr<Connection> conn) {
+    s.thisObject()->setProperty("__onconnection", args[0]);
+    std::weak_ptr<WebSocketServer> serverWeak = *cobj;
+    cobj->get()->setOnConnection([serverWeak](std::shared_ptr<Connection> conn) {
             se::AutoHandleScope hs;
+
+            auto server = serverWeak.lock();
+            if (!server) {
+                return;
+            }
+            se::Object* sobj= (se::Object*)server->getData();
+            if (!sobj) {
+                return;
+            }
+            se::Value callback;
+            if (!sobj->getProperty("__onconnection", &callback)) {
+                SE_REPORT_ERROR("onconnection callback not found!");
+                return;
+            }
+
             se::Object* obj = se::Object::createObjectWithClass(__jsb_WebSocketServer_Connection_class);
             WSCONNPTR prv = new std::shared_ptr<Connection>(conn);
             // a connection is dead only if no reference & closed!
             obj->root();
             obj->setPrivateData(prv);
             conn->setData(obj);
-            prv->get()->setOnEnd([obj]() {
+            std::weak_ptr<Connection> connWeak = conn;
+            prv->get()->setOnEnd([obj, connWeak]() {
                 // release we connection is gone!
                 obj->unroot();
+                auto p = connWeak.lock();
                 });
             se::ValueArray args;
-            bool success = funObj->call(args, jsThis.toObject(), nullptr);;
+            args.push_back(se::Value(obj));
+            bool success = callback.toObject()->call(args, sobj, nullptr);;
+            //bool success = funVal.toObject()->call(args, thsVal.toObject(), nullptr);;
             if (!success) {
                 se::ScriptEngine::getInstance()->clearException();
             }
@@ -197,14 +239,31 @@ static bool WebSocketServer_close(se::State& s)
     if (argc == 1) {
         if(args[0].isObject() && args[0].toObject()->isFunction()) {
             auto funObj = args[0].toObject();
-            se::Value jsThis(s.thisObject());
-            jsThis.toObject()->attachObject(funObj);
-            callback = [funObj, jsThis](const std::string& err) {
+            s.thisObject()->setProperty("__onclose", args[0]);
+            std::weak_ptr<WebSocketServer> serverWeak = *cobj;
+            callback = [serverWeak](const std::string& err) {
                 se::AutoHandleScope hs;
+
+                auto server = serverWeak.lock();
+                if (!server) {
+                    return;
+                }
+                se::Object* sobj = (se::Object*)server->getData();
+                if (!sobj) {
+                    return;
+                }
+                se::Value callback;
+                if (!sobj->getProperty("__onclose", &callback)) {
+                    SE_REPORT_ERROR("onclose callback not found!");
+                    return;
+                }
+
                 se::ValueArray args;
-                args.push_back(se::Value(err));
-                se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                bool success = funObj->call(args, thisObj, nullptr);
+                if (!err.empty())
+                {
+                    args.push_back(se::Value(err));
+                }
+                bool success = callback.toObject()->call(args, sobj, nullptr);
                 if (!success) {
                     se::ScriptEngine::getInstance()->clearException();
                 }
@@ -275,7 +334,7 @@ static bool WebSocketServer_Connection_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc);
     return false;
 }
-SE_BIND_CTOR(WebSocketServer_Connection_constructor, __jsb_WebSocketServer_class, WebSocketServer_Connection_finalize)
+SE_BIND_CTOR(WebSocketServer_Connection_constructor, __jsb_WebSocketServer_Connection_class, WebSocketServer_Connection_finalize)
 
 static bool WebSocketServer_Connection_send(se::State& s)
 {
@@ -296,17 +355,37 @@ static bool WebSocketServer_Connection_send(se::State& s)
         if (args[argc - 1].isObject() && args[argc - 1].toObject()->isFunction()) 
         {
             auto funObj = args[argc -1 ].toObject();
-            se::Value jsThis(s.thisObject());
-            jsThis.toObject()->attachObject(funObj);
-            callback = [funObj, jsThis](const std::string& err) {
+            std::string callbackId = gen_send_index();
+            s.thisObject()->setProperty(callbackId.c_str(), args[argc - 1]);
+
+            std::weak_ptr<Connection> connWeak = *cobj;
+
+            callback = [callbackId, connWeak](const std::string& err) {
                 se::AutoHandleScope hs;
+                auto conn = connWeak.lock();
+                if (!conn) {
+                    return;
+                }
+                se::Object* sobj = (se::Object*)conn->getData();
+                if (!sobj) {
+                    return;
+                }
+                se::Value callback;
+                if (!sobj->getProperty(callbackId.c_str(), &callback)) {
+                    SE_REPORT_ERROR("send[%s] callback not found!", callbackId.c_str());
+                    return;
+                }
                 se::ValueArray args;
-                args.push_back(se::Value(err));
-                se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                bool success = funObj->call(args, thisObj, nullptr);
+                if (!err.empty())
+                {
+                    args.push_back(se::Value(err));
+                }
+                bool success = callback.toObject()->call(args, sobj, nullptr);
                 if (!success) {
                     se::ScriptEngine::getInstance()->clearException();
                 }
+                //remove callback
+                sobj->setProperty(callbackId.c_str(), se::Value::Undefined);
             };
         }
 
@@ -389,8 +468,6 @@ static bool WebSocketServer_Connection_close(se::State& s)
             ok = seval_to_std_string(args[1], &arg_reason);
             SE_PRECONDITION2(ok, false, "Convert args[1] should be a string");
         }
-
-
     }
 
     if (arg_code > 0 && !arg_reason.empty()) {
@@ -423,15 +500,27 @@ static bool WebSocketServer_Connection_onconnect(se::State& s) {
         return false;
     }
     
-    se::Object* funObj = args[0].toObject();
-    se::Value jsThis(s.thisObject());
-    jsThis.toObject()->attachObject(funObj);
-    
-    cobj->get()->setOnConnect([funObj, jsThis]() {
+    s.thisObject()->setProperty("__onconnect", args[0]);
+
+    std::weak_ptr<Connection> connWeak = *cobj;
+
+    cobj->get()->setOnConnect([connWeak]() {
         se::AutoHandleScope hs;
-        
+        auto conn = connWeak.lock();
+        if (!conn) {
+            return;
+        }
+        se::Object* sobj = (se::Object*)conn->getData();
+        if (!sobj) {
+            return;
+        }
+        se::Value callback;
+        if (!sobj->getProperty("__onconnect", &callback)) {
+            SE_REPORT_ERROR("__onconnect callback not found!");
+            return;
+        }
         se::ValueArray args;
-        bool success = funObj->call(args, jsThis.toObject(), nullptr);;
+        bool success = callback.toObject()->call(args, sobj, nullptr);;
         if (!success) {
             se::ScriptEngine::getInstance()->clearException();
         }
@@ -456,18 +545,30 @@ static bool WebSocketServer_Connection_onerror(se::State& s) {
         return false;
     }
 
-    se::Object* funObj = args[0].toObject();
-    se::Value jsThis(s.thisObject());
-    jsThis.toObject()->attachObject(funObj);
+    s.thisObject()->setProperty("__onerror", args[0]);
+    std::weak_ptr<Connection> connWeak = *cobj;
 
-    cobj->get()->setOnError([funObj, jsThis](const std::string &err) {
+    cobj->get()->setOnError([connWeak](const std::string &err) {
         se::AutoHandleScope hs;
+        auto conn = connWeak.lock();
+        if (!conn) {
+            return;
+        }
+        se::Object* sobj = (se::Object*)conn->getData();
+        if (!sobj) {
+            return;
+        }
+        se::Value callback;
+        if (!sobj->getProperty("__onerror", &callback)) {
+            SE_REPORT_ERROR("__onerror callback not found!");
+            return;
+        }
         se::ValueArray args;
         if (!err.empty())
         {
             args.push_back(se::Value(err));
         }
-        bool success = funObj->call(args, jsThis.toObject(), nullptr);;
+        bool success = callback.toObject()->call(args, sobj, nullptr);;
         if (!success) {
             se::ScriptEngine::getInstance()->clearException();
         }
@@ -492,19 +593,33 @@ static bool WebSocketServer_Connection_onclose(se::State& s) {
         return false;
     }
 
-    se::Object* funObj = args[0].toObject();
-    se::Value jsThis(s.thisObject());
-    jsThis.toObject()->attachObject(funObj);
-
-    cobj->get()->setOnClose([funObj, jsThis](int code, const std::string& err) {
+    s.thisObject()->setProperty("__onclose", args[0]);
+    std::weak_ptr<Connection> connWeak = *cobj;
+    
+    cobj->get()->setOnClose([connWeak](int code, const std::string& err) {
         se::AutoHandleScope hs;
+
+        auto conn = connWeak.lock();
+        if (!conn) {
+            return;
+        }
+        se::Object* sobj = (se::Object*)conn->getData();
+        if (!sobj) {
+            return;
+        }
+        se::Value callback;
+        if (!sobj->getProperty("__onclose", &callback)) {
+            SE_REPORT_ERROR("__onclose callback not found!");
+            return;
+        }
+
         se::ValueArray args;
         args.push_back(se::Value(code));
         if (!err.empty())
         {
             args.push_back(se::Value(err));
         }
-        bool success = funObj->call(args, jsThis.toObject(), nullptr);;
+        bool success = callback.toObject()->call(args, sobj, nullptr);;
         if (!success) {
             se::ScriptEngine::getInstance()->clearException();
         }
@@ -528,15 +643,29 @@ static bool WebSocketServer_Connection_ontext(se::State& s) {
         return false;
     }
 
-    se::Object* funObj = args[0].toObject();
-    se::Value jsThis(s.thisObject());
-    jsThis.toObject()->attachObject(funObj);
+    s.thisObject()->setProperty("__ontext", args[0]);
+    std::weak_ptr<Connection> connWeak = *cobj;
 
-    cobj->get()->setOnText([funObj, jsThis](const std::shared_ptr<DataFrag> text) {
+    cobj->get()->setOnText([connWeak](const std::shared_ptr<DataFrag> text) {
         se::AutoHandleScope hs;
+
+        auto conn = connWeak.lock();
+        if (!conn) {
+            return;
+        }
+        se::Object* sobj = (se::Object*)conn->getData();
+        if (!sobj) {
+            return;
+        }
+        se::Value callback;
+        if (!sobj->getProperty("__ontext", &callback)) {
+            SE_REPORT_ERROR("__ontext callback not found!");
+            return;
+        }
+
         se::ValueArray args;
         args.push_back(se::Value(text->toString()));
-        bool success = funObj->call(args, jsThis.toObject(), nullptr);;
+        bool success = callback.toObject()->call(args, sobj, nullptr);;
         if (!success) {
             se::ScriptEngine::getInstance()->clearException();
         }
@@ -560,16 +689,29 @@ static bool WebSocketServer_Connection_onbinary(se::State& s) {
         return false;
     }
 
-    se::Object* funObj = args[0].toObject();
-    se::Value jsThis(s.thisObject());
-    jsThis.toObject()->attachObject(funObj);
+    s.thisObject()->setProperty("__onbinary", args[0]);
+    std::weak_ptr<Connection> connWeak = *cobj;
 
-    cobj->get()->setOnBinary([funObj, jsThis](const std::shared_ptr<DataFrag> text) {
+    cobj->get()->setOnBinary([connWeak](const std::shared_ptr<DataFrag> text) {
         se::AutoHandleScope hs;
+        auto conn = connWeak.lock();
+        if (!conn) {
+            return;
+        }
+        se::Object* sobj = (se::Object*)conn->getData();
+        if (!sobj) {
+            return;
+        }
+        se::Value callback;
+        if (!sobj->getProperty("__onbinary", &callback)) {
+            SE_REPORT_ERROR("__onbinary callback not found!");
+            return;
+        }
+
         se::ValueArray args;
         se::Object* buffer = se::Object::createArrayBufferObject(text->getData(), text->size());
         args.push_back(se::Value(buffer));
-        bool success = funObj->call(args, jsThis.toObject(), nullptr);;
+        bool success = callback.toObject()->call(args, sobj, nullptr);;
         if (!success) {
             se::ScriptEngine::getInstance()->clearException();
         }
@@ -595,12 +737,26 @@ static bool WebSocketServer_Connection_ondata(se::State& s) {
         return false;
     }
 
-    se::Object* funObj = args[0].toObject();
-    se::Value jsThis(s.thisObject());
-    jsThis.toObject()->attachObject(funObj);
+    s.thisObject()->setProperty("__ondata", args[0]);
+    std::weak_ptr<Connection> connWeak = *cobj;
 
-    cobj->get()->setOnData([funObj, jsThis](const std::shared_ptr<DataFrag> text) {
+    cobj->get()->setOnData([connWeak](const std::shared_ptr<DataFrag> text) {
         se::AutoHandleScope hs;
+
+        auto connPtr = connWeak.lock();
+        if (!connPtr) {
+            return;
+        }
+        se::Object *sobj = (se::Object*) connPtr->getData();
+        if (!sobj) {
+            return;
+        }
+
+        se::Value callback;
+        if (!sobj->getProperty("__ondata", &callback)) {
+            return;
+        }
+
         se::ValueArray args;
         if(text->isBinary())
         {
@@ -611,7 +767,7 @@ static bool WebSocketServer_Connection_ondata(se::State& s) {
         {
             args.push_back(se::Value(text->toString()));
         }
-        bool success = funObj->call(args, jsThis.toObject(), nullptr);;
+        bool success = callback.toObject()->call(args, sobj, nullptr);;
         if (!success) {
             se::ScriptEngine::getInstance()->clearException();
         }

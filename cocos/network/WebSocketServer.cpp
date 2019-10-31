@@ -1,13 +1,16 @@
 
 #include <iostream>
+#include <cassert>
+
+#ifndef WSS_EXTERNAL_TEST_BUILD
 
 #include "WebSocketServer.h"
 #include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
-#include "uv/uv.h"
+
 
 namespace cocos2d {
-    namespace network {
+namespace network {
 
 #define RUN_IN_GAMETHREAD(task) \
     do { \
@@ -21,18 +24,57 @@ namespace cocos2d {
             auto wrapper = [callback, msg]() {callback(msg); }; \
             RUN_IN_GAMETHREAD(wrapper()); \
         }); \
-    }while(0)\
+    }while(0)
+
+#else
+
+#include "WebSocketServer.h"
+#include "uv.h"
+#include <cstdio>
+#include <cstring>
+
+#define RUN_IN_GAMETHREAD(task) \
+    do { \
+        task; \
+    } while(0)
+
+#define DISPATCH_CALLBACK_IN_GAME_LOOP() do {\
+        data->setCallback([callback](const std::string& msg) { \
+            auto wrapper = [callback, msg]() {callback(msg); }; \
+            RUN_IN_GAMETHREAD(wrapper()); \
+        }); \
+    }while(0)
+//#define CCLOG(fmt, ...) do {\ 
+//        char _buf[256] = { 0 }; \
+//        snprintf(_buf, 256, fmt, ##__VA_ARGS__); \
+//        std::cout << "[CCLOG]" << _buf << std::endl; \
+//    } while(0)
+
+#define CCLOG printf
+#endif
+
+
 
 #ifdef WS_LOG_FUN
 
 void LOG_EVENT(const char* fn) 
 {
-    std::cout << "fn " << fn << std::endl;
+    time_t rawtime;
+    struct tm* timeinfo;
+    char buffer[80];
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer, 80, "%H:%M:%S", timeinfo);
+
+    std::cout << buffer << " [fn] " << fn << std::endl;
 }
 #define LOGE() LOG_EVENT(__FUNCTION__)
 
 #else
-#define LOGE() 
+//#define LOGE() CCLOG("WSS: %s", __FUNCTION__)
+#define LOGE()
 #endif
 
 
@@ -76,6 +118,20 @@ static void schedule_async_task(uv_async_t* asyn, std::function<void()> func)
     uv_async_send(asyn);
 }
 
+#if USE_EXT_LIBUV_LOOP
+struct timer_count {
+    int c = 0;
+    int max = 1;
+};
+static void timer_callback(uv_timer_t* timer) {
+    struct timer_count* d = (struct timer_count*)timer->data;
+    if (d->c >= d->max) {
+        uv_timer_stop(timer);
+    }
+    d->c++;
+    CCLOG("TIMER LOG \n");
+}
+#endif
 
 
 DataFrag::DataFrag(const std::string& data) :_isBinary(false)
@@ -123,15 +179,15 @@ std::string DataFrag::toString()
     return std::string((char*)getData(), size());
 }
 
-static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons reason,
-    void* user, void* in, size_t len);
+//static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons reason,
+//    void* user, void* in, size_t len);
 
 static struct lws_protocols protocols[] = {
     {
         "", //protocol name
-        websocket_server_callback,
-        0,
-        MAX_MSG_PAYLOAD
+        WebSocketServer::websocket_server_callback,
+        sizeof(int),
+        0
     },
     {
         nullptr, nullptr, 0
@@ -187,8 +243,23 @@ bool WebSocketServer::closeAsync(std::function<void(const std::string & errorMsg
 
 bool WebSocketServer::listen(int port, const std::string& host, std::function<void(const std::string & errorMsg)> callback)
 {
-    _host = host;
 
+    lws_set_log_level(-1, nullptr);
+
+    _host = host;
+#if USE_EXT_LIBUV_LOOP
+    _loop = (uv_loop_t*)malloc(sizeof(*_loop));
+    memset(_loop, 0, sizeof(*_loop));
+    uv_loop_init(_loop);
+
+    uv_timer_init(_loop, &_timer);
+    struct timer_count tc;
+    tc.max = 20;
+    _timer.data = &tc;
+    uv_timer_start(&_timer, timer_callback, 0, 10);
+    uv_run(_loop, UV_RUN_DEFAULT);
+
+#endif
     struct lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
     info.port = port;
@@ -197,51 +268,59 @@ bool WebSocketServer::listen(int port, const std::string& host, std::function<vo
     info.gid = -1;
     info.uid = -1;
     info.extensions = exts;
-    info.options = LWS_SERVER_OPTION_VALIDATE_UTF8| LWS_SERVER_OPTION_LIBUV;
-    info.timeout_secs = 30; //
+    // info.options = LWS_SERVER_OPTION_VALIDATE_UTF8
+    //     |LWS_SERVER_OPTION_LIBUV
+    //     |LWS_SERVER_OPTION_SKIP_SERVER_CANONICAL_NAME
+    //     ;
+    info.options = LWS_SERVER_OPTION_LIBUV
+        ;
+    info.timeout_secs = 3; //
+    info.max_http_header_pool = 1;
     info.user = this;
 
     _ctx = lws_create_context(&info);
 
     if (!_ctx) {
         if (callback) {
-            callback("Error: Failed to create lws_context!");
-            if (_onerror) {
-                _onerror("websocket listen error!");
-            }
+            RUN_IN_GAMETHREAD(callback("Error: Failed to create lws_context!"));
         }
+        RUN_IN_GAMETHREAD(if (_onerror)_onerror("websocket listen error!"));
         return false;
     }
-
-    if (lws_uv_initloop(_ctx, nullptr, 0)) {
+    uv_loop_t* loop = nullptr;
+#if USE_EXT_LIBUV_LOOP
+    loop = _loop;
+#endif
+    if (lws_uv_initloop(_ctx, loop, 0)) {
         if (callback) {
-            callback("Error: Failed to create libuv loop!");
-            if (_onerror) {
-                _onerror("websocket listen error, failed to create libuv loop!");
-            }
+            RUN_IN_GAMETHREAD(callback("Error: Failed to create libuv loop!"));
         }
+        RUN_IN_GAMETHREAD(if (_onerror)_onerror("websocket listen error, failed to create libuv loop!"));
         return false;
     }
-
-
-
-    async_init(lws_uv_getloop(_ctx, 0), &_async);
-
-    if (_onlistening)
-        RUN_IN_GAMETHREAD(_onlistening(""));
+#if USE_EXT_LIBUV_LOOP
+    assert(lws_uv_getloop(_ctx, 0) == loop);
+#else 
+    loop = lws_uv_getloop(_ctx, 0);
+#endif
 
     _booted = true;
-    
-    if (_onbegin)
-        RUN_IN_GAMETHREAD(_onbegin());
+    async_init(loop, &_async);
+    RUN_IN_GAMETHREAD(if(_onlistening)_onlistening(""));
+    RUN_IN_GAMETHREAD(if(_onbegin)_onbegin());
+    RUN_IN_GAMETHREAD(if(callback)callback(""));
 
+#if USE_EXT_LIBUV_LOOP
+    uv_run(loop, UV_RUN_DEFAULT);
+#else
     lws_libuv_run(_ctx, 0);
-
+#endif
 
     uv_close((uv_handle_t*)&_async, nullptr);
-
-    if (_onend)
-        RUN_IN_GAMETHREAD(_onend());
+#if USE_EXT_LIBUV_LOOP
+    uv_loop_close(loop);
+#endif
+    RUN_IN_GAMETHREAD(if(_onend)_onend());
 
     return true;
 }
@@ -269,12 +348,15 @@ void WebSocketServer::onCreateClient(struct lws* wsi)
 {
     LOGE();
     std::shared_ptr<Connection> conn = std::make_shared<Connection>(wsi);
-    _conns.emplace(wsi, conn);
 
-    if (_onconnection)
-    {
-        RUN_IN_GAMETHREAD(_onconnection(conn));
-    }
+    char ip[221] = { 0 };
+    char addr[221] = { 0 };
+    //lws_get_peer_addresses(wsi, lws_get_socket_fd(wsi), ip, 220, addr, 220);
+
+    _conns.emplace(wsi, conn);
+    
+    RUN_IN_GAMETHREAD(if(_onconnection) _onconnection(conn));
+    
     conn->onConnected();
 }
 
@@ -311,8 +393,6 @@ void WebSocketServer::onCloseClientInit(struct lws* wsi, void* in, int len)
             itr->second->onCloseInit(code, cp);
         }
     }
-
-
 }
 
 void WebSocketServer::onClientReceive(struct lws* wsi, void* in, int len)
@@ -352,8 +432,8 @@ Connection::Connection(struct lws* wsi) : _wsi(wsi)
 
 Connection::~Connection()
 {
-    uv_close((uv_handle_t*)&_async, nullptr);
     LOGE();
+    //uv_close((uv_handle_t*)&_async, nullptr);
 }
 
 bool Connection::send(std::shared_ptr<DataFrag> data)
@@ -427,6 +507,7 @@ bool Connection::close(int code, std::string message)
     _closeReason = message;
     _closeCode = code;
     setClosed();
+    lws_callback_on_writable(_wsi);
     return true;
 }
 
@@ -445,8 +526,7 @@ bool Connection::closeAsync(int code, std::string message)
 void Connection::onConnected()
 {
     _readyState = ReadyState::OPEN;
-    if (_onconnect)
-        RUN_IN_GAMETHREAD(_onconnect());
+    RUN_IN_GAMETHREAD(if(_onconnect)_onconnect());
 }
 
 void Connection::onDataReceive(void* in, int len)
@@ -465,27 +545,20 @@ void Connection::onDataReceive(void* in, int len)
 
     if (isFinal) {
         //trigger event
-        if (isBinary && _onbinary)
+        std::shared_ptr<DataFrag> fullpkg = _prevPkg;
+        if (isBinary)
         {
-            RUN_IN_GAMETHREAD(_onbinary(_prevPkg));
+            RUN_IN_GAMETHREAD(if(_onbinary)_onbinary(fullpkg));
         }
-        if (!isBinary && _ontext)
+        if (!isBinary)
         {
-            RUN_IN_GAMETHREAD(_ontext(_prevPkg));
-        }
-
-        if (_ondata)
-        {
-            RUN_IN_GAMETHREAD(_ontext(_prevPkg));
+            RUN_IN_GAMETHREAD(if(_ontext)_ontext(fullpkg));
         }
 
+        RUN_IN_GAMETHREAD(if(_ondata)_ondata(fullpkg));
+        
         _prevPkg.reset();
     }
-
-
-    char* p = (char*)in;
-    std::cout << "Receive data: " << len << " bytes!" << std::endl;
-    std::cout << "             : " << p << "|< " << strlen(p) << std::endl;
 }
 
 
@@ -495,7 +568,10 @@ int Connection::onDrainData()
     LOGE();
     if (!_wsi) return -1;
     if (_closed) return -1;
-
+    if (_readyState == ReadyState::CLOSING) {
+        return -1;
+    }
+    if (_readyState != ReadyState::OPEN) return 0;
     unsigned char* p = nullptr;
     int send_len = 0;
     int finish_len = 0;
@@ -509,15 +585,27 @@ int Connection::onDrainData()
 
         send_len = frag->slice(&p, SEND_BUFF);
 
-        if (frag->isBinary()) flags |= LWS_WRITE_BINARY;
-        if (frag->isString())  flags |= LWS_WRITE_TEXT;
+        if(frag->isFront())
+        {
+            if (frag->isBinary()) 
+            {
+                flags |= LWS_WRITE_BINARY;
+            }
+            if (frag->isString())  
+            {
+                flags |= LWS_WRITE_TEXT;
+            }
+        }
+
         if (frag->remain() != send_len)
         {
+            // remain bytes > 0
+            // not FIN
             flags |= LWS_WRITE_NO_FIN;
-            if (!frag->isFront())
-            {
-                flags |= LWS_WRITE_CONTINUATION;
-            }
+        }
+
+        if (!frag->isFront()) {
+            flags |= LWS_WRITE_CONTINUATION;
         }
 
         finish_len = lws_write(_wsi, p, send_len, (lws_write_protocol)flags);
@@ -525,12 +613,14 @@ int Connection::onDrainData()
         if (finish_len == 0)
         {
             frag->onFinish("Connection Closed");
-            return -1; // connection closed?
+            return -1; // connection closed? can cause mainloop exit
+            //return 0; 
         }
         else if (finish_len < 0)
         {
             frag->onFinish("Send Error!");
-            return -1; // error ??
+            return -1; // connection closed? can cause mainloop exit
+            //return 0;
         }
         else
         {
@@ -583,11 +673,6 @@ void Connection::onHTTP()
         n++;
     } while (c);
 
-    for (auto& it : _headers) {
-
-        std::cout << "HEADER| " << it.first << "//" << it.second << std::endl;
-    }
-
 }
 
 void Connection::onCloseInit(int code, const std::string& msg)
@@ -609,13 +694,8 @@ void Connection::finallyClosed()
     //on wsi destroied
     if (_wsi)
     {
-        if (_onclose) {
-            RUN_IN_GAMETHREAD(_onclose(_closeCode, _closeReason));
-        }
-
-        if (_onend) {
-            RUN_IN_GAMETHREAD(_onend());
-        }
+        RUN_IN_GAMETHREAD(if(_onclose)_onclose(_closeCode, _closeReason));
+        RUN_IN_GAMETHREAD(if(_onend) _onend());
     }
 }
 
@@ -623,13 +703,13 @@ void Connection::finallyClosed()
 std::vector<std::string> Connection::getProtocols() {
     std::vector<std::string> ret;
     if (_wsi) {
-        const struct lws_protocols* protos = lws_get_protocol(_wsi);
-
-        while (protos && protos->name != nullptr)
-        {
-            ret.emplace_back(protos->name);
-            protos++;
-        }
+        //TODO 
+        //const struct lws_protocols* protos = lws_get_protocol(_wsi);
+        //while (protos && protos->name != nullptr)
+        //{
+        //    ret.emplace_back(protos->name);
+        //    protos++;
+        //}
     }
     return ret;
 }
@@ -641,10 +721,9 @@ std::map<std::string, std::string> Connection::getHeaders()
 }
 
 
-static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons reason,
+int WebSocketServer::websocket_server_callback(struct lws* wsi, enum lws_callback_reasons reason,
     void* user, void* in, size_t len)
 {
-
     int ret = 0;
     WebSocketServer* server = nullptr;
     lws_context* ctx = nullptr;
@@ -657,8 +736,7 @@ static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons 
     if (!server) {
         return 0;
     }
-
-
+    
 
     switch (reason)
     {
@@ -691,7 +769,7 @@ static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons 
         ret = server->onClientWritable(wsi);
         break;
     case LWS_CALLBACK_HTTP:
-        server->onClientHTTP(wsi);
+        //server->onClientHTTP(wsi);
         break;
     case LWS_CALLBACK_HTTP_BODY:
         break;
@@ -821,6 +899,7 @@ static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons 
     return ret;
 }
 
-
+#ifndef WSS_EXTERNAL_TEST_BUILD
 } // namespace network
 } // namespace cocos2d
+#endif

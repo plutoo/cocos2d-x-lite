@@ -169,9 +169,13 @@ if(USE_SOCKET)
     list(APPEND CC_SCRIPTING_SOURCES
         scripting/js-bindings/manual/jsb_socketio.cpp
         scripting/js-bindings/manual/jsb_websocket.cpp
-        scripting/js-bindings/manual/jsb_websocket_server.hpp
-        scripting/js-bindings/manual/jsb_websocket_server.cpp
     )
+    if(USE_WEBSOCKET_SERVER)
+        list(APPEND CC_SCRIPTING_SOURCES
+            scripting/js-bindings/manual/jsb_websocket_server.hpp
+            scripting/js-bindings/manual/jsb_websocket_server.cpp
+            )
+    endif()
 endif()
 
 if(USE_MIDDLEWARE)

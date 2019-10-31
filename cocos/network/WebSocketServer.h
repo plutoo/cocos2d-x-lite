@@ -2,7 +2,7 @@
 
 
 
-
+#include "uv.h"
 
 #include <string>
 #include <vector>
@@ -15,23 +15,18 @@
 #include <thread>
 #include <mutex>
 
-#ifndef EXT_BUILD
+#ifndef WSS_EXTERNAL_TEST_BUILD
 #include "platform/CCPlatformDefine.h"
 #endif
 
 
 #include "libwebsockets.h"
 
-#ifndef EXT_BUILD
-
+#ifndef WSS_EXTERNAL_TEST_BUILD
 namespace cocos2d {
-
-    namespace network {
-
+namespace network {
 #else 
-
 #define CC_DLL 
-
 #endif
 
 class Connection;
@@ -312,13 +307,18 @@ private:
     
     void* _data = nullptr;
 
+#if USE_EXT_LIBUV_LOOP
+    uv_loop_t *_loop = nullptr;
+    uv_timer_t _timer;
+#endif
 
-    friend int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons reason,
+public:
+    static int websocket_server_callback(struct lws* wsi, enum lws_callback_reasons reason,
         void* user, void* in, size_t len);
 };
 
 
-#ifndef EXT_BUILD
+#ifndef WSS_EXTERNAL_TEST_BUILD
     }
 }
 #endif
