@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -386,6 +386,7 @@ static bool WebSocketServer_Connection_send(se::State& s)
                 }
                 //remove callback, TODO: `delete property` 
                 sobj->setProperty(callbackId.c_str(), se::Value::Undefined);
+
             };
         }
 
