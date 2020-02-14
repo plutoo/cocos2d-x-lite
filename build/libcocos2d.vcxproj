@@ -50,7 +50,6 @@
     <ClCompile Include="..\cocos\cocos2d.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCache.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCacheMgr.cpp" />
-    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\AttachUtil.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.cpp" />
@@ -94,7 +93,6 @@
     <ClCompile Include="..\cocos\editor-support\IOTypedArray.cpp" />
     <ClCompile Include="..\cocos\editor-support\particle\ParticleSimulator.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp" />
-    <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachUtil.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonAnimation.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonCache.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheAnimation.cpp" />
@@ -208,9 +206,8 @@
     <ClCompile Include="..\cocos\renderer\renderer\BaseRenderer.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Camera.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Config.cpp" />
-    <ClCompile Include="..\cocos\renderer\renderer\EffectVariant.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\CustomProperties.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Effect.cpp" />
-    <ClCompile Include="..\cocos\renderer\renderer\EffectBase.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\ForwardRenderer.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\InputAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Light.cpp" />
@@ -234,7 +231,6 @@
     <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\MeshAssembler.cpp" />
-    <ClCompile Include="..\cocos\renderer\scene\assembler\Particle3DAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\MemPool.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\MeshBuffer.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\ModelBatcher.cpp" />
@@ -357,7 +353,6 @@
     <ClInclude Include="..\cocos\cocos2d.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCache.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCacheMgr.h" />
-    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\AttachUtil.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCDragonBonesHeaders.h" />
@@ -410,7 +405,6 @@
     <ClInclude Include="..\cocos\editor-support\IOTypedArray.h" />
     <ClInclude Include="..\cocos\editor-support\particle\ParticleSimulator.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.h" />
-    <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachUtil.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonAnimation.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonCache.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheAnimation.h" />
@@ -558,9 +552,8 @@
     <ClInclude Include="..\cocos\renderer\renderer\BaseRenderer.h" />
     <ClInclude Include="..\cocos\renderer\renderer\Camera.h" />
     <ClInclude Include="..\cocos\renderer\renderer\Config.h" />
-    <ClInclude Include="..\cocos\renderer\renderer\EffectVariant.hpp" />
+    <ClInclude Include="..\cocos\renderer\renderer\CustomProperties.hpp" />
     <ClInclude Include="..\cocos\renderer\renderer\Effect.h" />
-    <ClInclude Include="..\cocos\renderer\renderer\EffectBase.h" />
     <ClInclude Include="..\cocos\renderer\renderer\ForwardRenderer.h" />
     <ClInclude Include="..\cocos\renderer\renderer\INode.h" />
     <ClInclude Include="..\cocos\renderer\renderer\InputAssembler.h" />
@@ -586,7 +579,6 @@
     <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\MeshAssembler.hpp" />
-    <ClInclude Include="..\cocos\renderer\scene\assembler\Particle3DAssembler.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\MemPool.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\MeshBuffer.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\ModelBatcher.hpp" />
@@ -755,7 +747,7 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support;$(ProjectDir)..\external\win32\include\freetype</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\external\win32\include\freetype;$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;CC_STATIC;_USRDLL;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -796,7 +788,7 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
       </Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support;$(ProjectDir)..\external\win32\include\freetype</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\external\win32\include\freetype;$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;CC_STATIC;_USRDLL;USING_V8_SHARED;_LIB;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>

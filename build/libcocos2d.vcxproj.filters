@@ -34,7 +34,6 @@
     <ClCompile Include="..\cocos\cocos2d.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCache.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCacheMgr.cpp" />
-    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\AttachUtil.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.cpp" />
@@ -78,7 +77,6 @@
     <ClCompile Include="..\cocos\editor-support\IOTypedArray.cpp" />
     <ClCompile Include="..\cocos\editor-support\particle\ParticleSimulator.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp" />
-    <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachUtil.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonAnimation.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonCache.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheAnimation.cpp" />
@@ -192,9 +190,8 @@
     <ClCompile Include="..\cocos\renderer\renderer\BaseRenderer.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Camera.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Config.cpp" />
-    <ClCompile Include="..\cocos\renderer\renderer\EffectVariant.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\CustomProperties.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Effect.cpp" />
-    <ClCompile Include="..\cocos\renderer\renderer\EffectBase.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\ForwardRenderer.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\InputAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\Light.cpp" />
@@ -218,7 +215,6 @@
     <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\MeshAssembler.cpp" />
-    <ClCompile Include="..\cocos\renderer\scene\assembler\Particle3DAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\MemPool.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\MeshBuffer.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\ModelBatcher.cpp" />
@@ -290,27 +286,13 @@
     <ClCompile Include="..\external\sources\unzip\ioapi_mem.cpp" />
     <ClCompile Include="..\external\sources\unzip\unzip.cpp" />
     <ClCompile Include="..\external\sources\xxtea\xxtea.cpp" />
-    <ClCompile Include="..\cocos\2d\CCFontAtlas.cpp">
-      <Filter>cocos\2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\2d\CCFontFreetype.cpp">
-      <Filter>cocos\2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\2d\CCLabelLayout.cpp">
-      <Filter>cocos\2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\2d\CCTTFLabelAtlasCache.cpp">
-      <Filter>cocos\2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\2d\CCTTFLabelRenderer.cpp">
-      <Filter>cocos\2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\2d\CCTTFTypes.cpp">
-      <Filter>cocos\2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\edtaa3func\edtaa3func.cpp">
-      <Filter>external\sources</Filter>
-    </ClCompile>
+    <ClCompile Include="..\cocos\2d\CCFontAtlas.cpp" />
+    <ClCompile Include="..\cocos\2d\CCFontFreetype.cpp" />
+    <ClCompile Include="..\cocos\2d\CCLabelLayout.cpp" />
+    <ClCompile Include="..\cocos\2d\CCTTFLabelAtlasCache.cpp" />
+    <ClCompile Include="..\cocos\2d\CCTTFLabelRenderer.cpp" />
+    <ClCompile Include="..\cocos\2d\CCTTFTypes.cpp" />
+    <ClCompile Include="..\external\sources\edtaa3func\edtaa3func.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos\audio\include\AudioEngine.h" />
@@ -355,7 +337,6 @@
     <ClInclude Include="..\cocos\cocos2d.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCache.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCacheMgr.h" />
-    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\AttachUtil.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCDragonBonesHeaders.h" />
@@ -408,7 +389,6 @@
     <ClInclude Include="..\cocos\editor-support\IOTypedArray.h" />
     <ClInclude Include="..\cocos\editor-support\particle\ParticleSimulator.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.h" />
-    <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachUtil.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonAnimation.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonCache.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheAnimation.h" />
@@ -556,9 +536,8 @@
     <ClInclude Include="..\cocos\renderer\renderer\BaseRenderer.h" />
     <ClInclude Include="..\cocos\renderer\renderer\Camera.h" />
     <ClInclude Include="..\cocos\renderer\renderer\Config.h" />
-    <ClInclude Include="..\cocos\renderer\renderer\EffectVariant.hpp" />
+    <ClInclude Include="..\cocos\renderer\renderer\CustomProperties.hpp" />
     <ClInclude Include="..\cocos\renderer\renderer\Effect.h" />
-    <ClInclude Include="..\cocos\renderer\renderer\EffectBase.h" />
     <ClInclude Include="..\cocos\renderer\renderer\ForwardRenderer.h" />
     <ClInclude Include="..\cocos\renderer\renderer\INode.h" />
     <ClInclude Include="..\cocos\renderer\renderer\InputAssembler.h" />
@@ -584,7 +563,6 @@
     <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\MeshAssembler.hpp" />
-    <ClInclude Include="..\cocos\renderer\scene\assembler\Particle3DAssembler.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\MemPool.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\MeshBuffer.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\ModelBatcher.hpp" />
@@ -670,27 +648,13 @@
     <ClInclude Include="..\external\sources\unzip\ioapi_mem.h" />
     <ClInclude Include="..\external\sources\unzip\unzip.h" />
     <ClInclude Include="..\external\sources\xxtea\xxtea.h" />
-    <ClInclude Include="..\cocos\2d\CCFontAtlas.h">
-      <Filter>cocos\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\2d\CCFontFreetype.h">
-      <Filter>cocos\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\2d\CCLabelLayout.h">
-      <Filter>cocos\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\2d\CCTTFLabelAtlasCache.h">
-      <Filter>cocos\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\2d\CCTTFLabelRenderer.h">
-      <Filter>cocos\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\2d\CCTTFTypes.h">
-      <Filter>cocos\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\edtaa3func\edtaa3func.h">
-      <Filter>external\sources</Filter>
-    </ClInclude>
+    <ClInclude Include="..\cocos\2d\CCFontAtlas.h" />
+    <ClInclude Include="..\cocos\2d\CCFontFreetype.h" />
+    <ClInclude Include="..\cocos\2d\CCLabelLayout.h" />
+    <ClInclude Include="..\cocos\2d\CCTTFLabelAtlasCache.h" />
+    <ClInclude Include="..\cocos\2d\CCTTFLabelRenderer.h" />
+    <ClInclude Include="..\cocos\2d\CCTTFTypes.h" />
+    <ClInclude Include="..\external\sources\edtaa3func\edtaa3func.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\cocos\math\Mat4.inl" />
@@ -702,19 +666,5 @@
     <None Include="..\cocos\math\Vec2.inl" />
     <None Include="..\cocos\math\Vec3.inl" />
     <None Include="..\cocos\math\Vec4.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="cocos">
-      <UniqueIdentifier>{634b5b20-269c-4172-aaa9-a5d9e8c6ae1c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="cocos\2d">
-      <UniqueIdentifier>{d9b80790-5144-41f6-864c-0b7cc915fcde}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="external">
-      <UniqueIdentifier>{71458db4-ac70-40e4-8c0c-48c3f6c7fd21}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="external\sources">
-      <UniqueIdentifier>{388ec926-9454-467f-aadd-6dcb37d9e1e7}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>
